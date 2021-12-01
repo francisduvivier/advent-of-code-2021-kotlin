@@ -4,7 +4,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size * 2
+        return 0
     }
 
     // test if implementation meets criteria from the description, like:

@@ -9,8 +9,7 @@ import java.security.MessageDigest
 /**
  * Reads lines from the given input txt file.
  */
-fun readInput(name: String): List<String> =
-    File("input", "$name.txt").readLines().map { checkTrim(it) }
+fun readInput(name: String): List<String> = File("input", "$name.txt").readLines().map { checkTrim(it) }
 
 fun checkTrim(it: String): String {
     if (it.trim().equals(it) && !it.isEmpty()) {
@@ -25,18 +24,21 @@ fun checkTrim(it: String): String {
  */
 fun String.md5(): String = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray())).toString(16)
 
-fun prcp(result: Int): String {
-    return prcp(result.toString())
+fun prcp(result: Int) {
+    prcp(result.toString())
 }
 
 /**
- * Prints, copies and returns the result;
+ * Prints and copies the result
  */
-fun prcp(resultString: String): String {
+fun prcp(resultString: String) {
+    if (resultString.equals("0")) {
+        println("0 Result given, not copying")
+        return
+    }
     val toolkit: Toolkit = Toolkit.getDefaultToolkit()
     val clipboard: Clipboard = toolkit.getSystemClipboard()
     val strSel = StringSelection(resultString)
     clipboard.setContents(strSel, null)
     println("Result(copied): " + resultString);
-    return resultString
 }
