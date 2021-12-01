@@ -4,14 +4,14 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return input.size
+        return input.size * 2
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day01_test")
+    val testInput = readInput("day_.test")
     check(part1(testInput) == 1)
 
-    val input = readInput("Day01")
-    println(part1(input))
-    println(part2(input))
+    val input = readInput("day_")
+    prcp(part1(input))
+    prcp(part2(input))
 }
