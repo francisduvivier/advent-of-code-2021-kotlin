@@ -10,6 +10,13 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
+        var count = 0;
+        for (i in 3..input.size - 1) {
+            if (input[i].toInt() + input[i - 1].toInt() + input[i - 2].toInt() > input[i - 1].toInt() + input[i - 2].toInt() + input[i - 3].toInt()) {
+                count++
+            }
+        }
+        return count;
         return input.size
     }
 
