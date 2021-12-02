@@ -1,6 +1,25 @@
 fun main() {
     fun part1(input: List<String>): Int {
-        return input.size
+        var depth = 0;
+        var hor = 0;
+        for (instuct in input) {
+            val splitInstruct = instuct.split(" ")
+            val opcode = splitInstruct[0]
+            val amount = splitInstruct[1].toInt()
+            if (opcode.equals("up")) {
+                depth -= amount;
+                if (depth < 0) {
+                    throw Error("submarines can't fly")
+                }
+            } else if (opcode.equals("down")) {
+                depth += amount;
+            } else if (opcode.equals("forward")) {
+                hor += amount;
+            } else {
+                throw Error("Invalid opcode")
+            }
+        }
+        return depth * hor;
     }
 
     fun part2(input: List<String>): Int {
@@ -9,7 +28,7 @@ fun main() {
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("day02.test")
-    check(part1(testInput) == 1)
+    check(part1(testInput) == 150)
 
     val input = readInput("day02")
     prcp(part1(input))
