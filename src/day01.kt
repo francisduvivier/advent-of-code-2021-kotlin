@@ -17,7 +17,6 @@ fun main() {
             }
         }
         return count;
-        return input.size
     }
 
     // test if implementation meets criteria from the description, like:
