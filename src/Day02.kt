@@ -49,11 +49,11 @@ fun main() {
 
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("day02.test")
+    val testInput = readInput("Day02.test")
     check(part1(testInput) == 150)
     check(part2(testInput) == 900)
 
-    val input = readInput("day02")
+    val input = readInput("Day02")
     prcp(part1(input))
     prcp(part2(input))
 }

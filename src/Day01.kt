@@ -20,10 +20,10 @@ fun main() {
     }
 
     // test if implementation meets criteria from the description, like:
-    val testInput = readInput("day01.test")
+    val testInput = readInput("Day01.test")
     check(part1(testInput) == 7)
 
-    val input = readInput("day01")
+    val input = readInput("Day01")
     prcp(part1(input))
     prcp(part2(input))
 }
