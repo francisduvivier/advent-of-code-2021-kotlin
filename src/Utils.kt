@@ -9,15 +9,7 @@ import java.security.MessageDigest
 /**
  * Reads lines from the given input txt file.
  */
-fun readInput(name: String): List<String> = File("input", "$name.txt").readLines().map { checkTrim(it) }
-
-fun checkTrim(it: String): String {
-    if (it.trim().equals(it) && !it.isEmpty()) {
-        return it
-    } else {
-        throw Error("input is not trimmed!" + it);
-    }
-}
+fun readInput(name: String): List<String> = File("input", "$name.txt").readLines().map { it.trim() }
 
 /**
  * Converts string to md5 hash.
