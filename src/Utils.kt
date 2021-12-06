@@ -16,6 +16,11 @@ fun readInput(name: String): List<String> = File("input", "$name.txt").readLines
  */
 fun String.md5(): String = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray())).toString(16)
 
+
+fun prcp(result: Long) {
+    prcp(result.toString())
+}
+
 fun prcp(result: Int) {
     prcp(result.toString())
 }
