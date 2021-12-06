@@ -42,7 +42,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        var lines: List<Line2D.Float> = input.map { toLine2D(it) }
+        val lines: List<Line2D.Float> = input.map { toLine2D(it) }
         return findCrossingTiles(lines)
     }
 
