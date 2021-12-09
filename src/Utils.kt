@@ -39,3 +39,25 @@ fun prcp(resultString: String) {
     clipboard.setContents(strSel, null)
     println("Result(copied): " + resultString);
 }
+
+fun getNeighborLocations(matrix: Array<IntArray>, row: Int, col: Int): List<Pair<Int, Int>> {
+    val nLocs = ArrayList<Pair<Int, Int>>()
+    if (row > 0) {
+        nLocs.add(Pair(row - 1, col))
+    }
+
+    if (row < matrix.size - 1) {
+        nLocs.add(Pair(row + 1, col))
+    }
+    if (col > 0) {
+        nLocs.add(Pair(row, col - 1))
+    }
+    if (col < matrix[row].size - 1) {
+        nLocs.add(Pair(row, col + 1))
+    }
+    return nLocs
+}
+
+fun getNeighbors(matrix: Array<IntArray>, row: Int, col: Int): List<Int> {
+    return getNeighborLocations(matrix, row, col).map { (row, col) -> matrix[row][col] }
+}
