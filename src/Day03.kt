@@ -9,8 +9,7 @@ fun main() {
     fun part1(input: List<String>): Int {
         var gammaBits = ""
         var epsBits = ""
-        val nbBits = input[0].length
-        for (i in 0..nbBits - 1) {
+        for (i in indexes(input[0])) {
             val diff = compare1s(input, i)
             gammaBits += if (diff > 0) "1" else "0";
             epsBits += if (diff > 0) "0" else "1";
@@ -22,8 +21,7 @@ fun main() {
         var oxygenCandidates: List<String> = ArrayList(input);
         var co2scrubCandidates: List<String> = ArrayList(input);
 
-        val nbBits = input[0].length
-        for (i in 0..nbBits - 1) {
+        for (i in indexes(input[0])) {
             if (oxygenCandidates.size <= 1 && co2scrubCandidates.size <= 1) {
                 break;
             }

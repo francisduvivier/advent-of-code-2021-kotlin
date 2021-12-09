@@ -61,3 +61,11 @@ fun getNeighborLocations(matrix: Array<IntArray>, row: Int, col: Int): List<Pair
 fun getNeighbors(matrix: Array<IntArray>, row: Int, col: Int): List<Int> {
     return getNeighborLocations(matrix, row, col).map { (row, col) -> matrix[row][col] }
 }
+
+fun <T> indexes(array: Array<T>) = Array(array.size, { it })
+fun <T> indexes(array: Iterable<T>) = Array(array.count(), { it })
+fun indexes(array: CharSequence) = Array(array.length, { it })
+
+fun <T> rowCols(matrix: Array<Array<T>>) {
+    indexes(matrix).flatMap { rowI -> indexes(matrix[rowI]).map { Pair(rowI, it) } }
+}
