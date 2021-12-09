@@ -22,15 +22,16 @@ fun main() {
     }
 
 
-    fun getNeighborsRec(matrix: Array<IntArray>, row: Int, col: Int, selector: (Int) -> Boolean): List<Int> {
-        val neighborLocations = getNeighborLocations(matrix, row, col)
+    fun exploreValleyRec(matrix: Array<IntArray>, row: Int, col: Int, selector: (Int) -> Boolean): List<Int> {
+        val value = matrix[row][col]
+        if (value == -1 || !selector(value)) {
+            return emptyList()
+        }
+        matrix[row][col] = -1
         val neighbors = ArrayList<Int>()
-        for ((neighborRow, neighborCol) in neighborLocations) {
-            if (matrix[neighborRow][neighborCol] != -1 && selector(matrix[neighborRow][neighborCol])) {
-                neighbors.add(matrix[neighborRow][neighborCol])
-                matrix[neighborRow][neighborCol] = -1
-                neighbors.addAll(getNeighborsRec(matrix, neighborRow, neighborCol, selector))
-            }
+        neighbors.add(value)
+        for ((neighborRow, neighborCol) in getNeighborLocations(matrix, row, col)) {
+            neighbors.addAll(exploreValleyRec(matrix, neighborRow, neighborCol, selector))
         }
         return neighbors
     }
@@ -56,17 +57,13 @@ fun main() {
         val groups = ArrayList<List<Int>>();
         for (row in 0..matrix.size - 1) {
             for (col in 0..matrix[row].size - 1) {
-
-                val value = matrix[row][col]
-                val selector: (Int) -> Boolean = { it != 9 }
-                if (selector(value) && value != -1) {
-                    matrix[row][col] = -1
-                    val valley = getNeighborsRec(matrix, row, col, selector).toMutableList()
-                    valley.add(value)
+                val valley = exploreValleyRec(matrix, row, col, { it != 9 })
+                if (valley.size != 0) {
                     groups.add(valley)
                 }
             }
         }
+
         return groups.map { it.size }.sortedDescending().subList(0, 3).reduce { acc, next -> acc * next }
     }
 
