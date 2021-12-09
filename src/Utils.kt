@@ -66,6 +66,11 @@ fun <T> indexes(array: Array<T>) = Array(array.size, { it })
 fun <T> indexes(array: Iterable<T>) = Array(array.count(), { it })
 fun indexes(array: CharSequence) = Array(array.length, { it })
 
-fun <T> rowCols(matrix: Array<Array<T>>) {
-    indexes(matrix).flatMap { rowI -> indexes(matrix[rowI]).map { Pair(rowI, it) } }
+
+fun <T> rowCols(matrix: List<Iterable<T>>): List<Pair<Int, Int>> {
+    return indexes(matrix).flatMap { rowI -> indexes(matrix[rowI]).map { Pair(rowI, it) } }
+}
+
+fun <T> rowCols(matrix: Array<Array<T>>): List<Pair<Int, Int>> {
+    return indexes(matrix).flatMap { rowI -> indexes(matrix[rowI]).map { Pair(rowI, it) } }
 }

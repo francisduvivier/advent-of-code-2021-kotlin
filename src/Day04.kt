@@ -18,15 +18,13 @@ fun main() {
         val boardsPointsLeft = Array(boards, { boardsNumbers[it].map { it.sum() }.sum() })
         for (newNumber in numbersDrawn) {
             for (boardIndex in 0..boards - 1) {
-                for (row in 0..rows - 1) {
-                    for (col in 0..columns - 1) {
-                        if (boardsNumbers[boardIndex][row][col] == newNumber) {
-                            boardsSelection[boardIndex][row][col] = true;
-                            boardsPointsLeft[boardIndex] -= newNumber;
-                            if (rowOrColumnFull(boardsSelection[boardIndex], row, col)) {
-                                val result = newNumber * boardsPointsLeft[boardIndex]
-                                return result;
-                            }
+                for ((row, col) in rowCols(boardsNumbers[0])) {
+                    if (boardsNumbers[boardIndex][row][col] == newNumber) {
+                        boardsSelection[boardIndex][row][col] = true;
+                        boardsPointsLeft[boardIndex] -= newNumber;
+                        if (rowOrColumnFull(boardsSelection[boardIndex], row, col)) {
+                            val result = newNumber * boardsPointsLeft[boardIndex]
+                            return result;
                         }
                     }
                 }
@@ -50,21 +48,18 @@ fun main() {
         val boardsWon = Array(boardsSelection.size, { false })
         for (newNumber in numbersDrawn) {
             for (boardIndex in 0..boards - 1) {
-                for (row in 0..rows - 1) {
-                    for (col in 0..columns - 1) {
-                        if (boardsNumbers[boardIndex][row][col] == newNumber) {
-                            boardsSelection[boardIndex][row][col] = true;
-                            boardsPointsLeft[boardIndex] -= newNumber;
-                            if (rowOrColumnFull(boardsSelection[boardIndex], row, col)) {
-                                boardsWon[boardIndex] = true
-                                if (boardsWon.all { it }) {
-                                    val result = newNumber * boardsPointsLeft[boardIndex]
-                                    return result;
-                                }
+                for ((row, col) in rowCols(boardsNumbers[0]))
+                    if (boardsNumbers[boardIndex][row][col] == newNumber) {
+                        boardsSelection[boardIndex][row][col] = true;
+                        boardsPointsLeft[boardIndex] -= newNumber;
+                        if (rowOrColumnFull(boardsSelection[boardIndex], row, col)) {
+                            boardsWon[boardIndex] = true
+                            if (boardsWon.all { it }) {
+                                val result = newNumber * boardsPointsLeft[boardIndex]
+                                return result;
                             }
                         }
                     }
-                }
             }
         }
         return 0
