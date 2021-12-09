@@ -1,14 +1,13 @@
-import kotlin.math.roundToInt
-
 fun main() {
-    fun part1(input: List<String>): Int {
+
+    fun calcSolution(input: List<String>, calculateCost: (Int, Int) -> Int): Int {
         val outputs = input[0].split(",").map { it.toInt() }.toIntArray()
         outputs.sort();
         var minSum = -1
 
         val lowest = outputs.first()
         for (i in lowest..outputs.last()) {
-            val summy = outputs.map { Math.abs(it - i) }.sum()
+            val summy = outputs.map { calculateCost(it, i) }.sum()
             if (minSum == -1 || summy < minSum) {
                 minSum = summy;
             }
@@ -16,20 +15,13 @@ fun main() {
         return minSum
     }
 
+    fun part1(input: List<String>): Int {
+        return calcSolution(input, { it: Int, other: Int -> Math.abs(it - other) })
+    }
+
+
     fun part2(input: List<String>): Int {
-
-        val outputs = input[0].split(",").map { it.toInt() }.toIntArray()
-        outputs.sort();
-        var minSum = -1
-
-        val lowest = outputs.first()
-        for (i in lowest..outputs.last()) {
-            val summy = outputs.map { ((Math.abs(it - i)) * (Math.abs(it - i) + 1) / 2) }.sum()
-            if (minSum == -1 || summy < minSum) {
-                minSum = summy;
-            }
-        }
-        return minSum
+        return calcSolution(input, { a: Int, b: Int -> ((Math.abs(a - b)) * (Math.abs(a - b) + 1) / 2) })
     }
 
     // test if implementation meets criteria from the description, like:
