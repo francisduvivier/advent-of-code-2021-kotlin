@@ -21,6 +21,20 @@ fun main() {
         return getNeighborLocations(matrix, row, col).map { (row, col) -> matrix[row][col] }
     }
 
+
+    fun getNeighborsRec(matrix: Array<IntArray>, row: Int, col: Int, selector: (Int) -> Boolean): List<Int> {
+        val neighborLocations = getNeighborLocations(matrix, row, col)
+        val neighbors = ArrayList<Int>()
+        for ((neighborRow, neighborCol) in neighborLocations) {
+            if (matrix[neighborRow][neighborCol] != -1 && selector(matrix[neighborRow][neighborCol])) {
+                neighbors.add(matrix[neighborRow][neighborCol])
+                matrix[neighborRow][neighborCol] = -1
+                neighbors.addAll(getNeighborsRec(matrix, neighborRow, neighborCol, selector))
+            }
+        }
+        return neighbors
+    }
+
     fun part1(input: List<String>): Int {
         val matrix =
             Array(input.size, { row -> IntArray(input[row].length, { col -> input[row][col].toString().toInt() }) })
@@ -37,13 +51,29 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        return 0
+        val matrix =
+            Array(input.size, { row -> IntArray(input[row].length, { col -> input[row][col].toString().toInt() }) })
+        val groups = ArrayList<List<Int>>();
+        for (row in 0..matrix.size - 1) {
+            for (col in 0..matrix[row].size - 1) {
+
+                val value = matrix[row][col]
+                val selector: (Int) -> Boolean = { it != 9 }
+                if (selector(value) && value != -1) {
+                    matrix[row][col] = -1
+                    val valley = getNeighborsRec(matrix, row, col, selector).toMutableList()
+                    valley.add(value)
+                    groups.add(valley)
+                }
+            }
+        }
+        return groups.map { it.size }.sortedDescending().subList(0, 3).reduce { acc, next -> acc * next }
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day09.test")
     check(part1(testInput) == 15)
-//    check(part2(testInput) == 1134)
+    check(part2(testInput) == 1134)
 
     val input = readInput("Day09")
     prcp(part1(input))
