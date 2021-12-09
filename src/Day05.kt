@@ -20,14 +20,13 @@ fun main() {
         val maxY = lines.map { Math.max(it.y1, it.y2).toInt() }.maxOrNull()!!
         val matrix = Array(maxY + 1, { IntArray(maxX + 1, { 0 }) })
         var overlaps = 0
+        val rowCols = rowCols(maxY + 1, maxX + 1)
         for (line in lines) {
-            for (y in 0..maxY) {
-                for (x in 0..maxX) {
-                    if (line.intersects(x - epsilon, y - epsilon, 2 * epsilon, 2 * epsilon)) {
-                        matrix[y][x]++
-                        if (matrix[y][x] == 2) {
-                            overlaps++;
-                        }
+            for ((y, x) in rowCols) {
+                if (line.intersects(x - epsilon, y - epsilon, 2 * epsilon, 2 * epsilon)) {
+                    matrix[y][x]++
+                    if (matrix[y][x] == 2) {
+                        overlaps++;
                     }
                 }
             }
@@ -45,7 +44,6 @@ fun main() {
         val lines: List<Line2D.Float> = input.map { toLine2D(it) }
         return findCrossingTiles(lines)
     }
-
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day05.test")
     check(part1(testInput) == 5)

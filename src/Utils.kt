@@ -62,15 +62,19 @@ fun getNeighbors(matrix: Array<IntArray>, row: Int, col: Int): List<Int> {
     return getNeighborLocations(matrix, row, col).map { (row, col) -> matrix[row][col] }
 }
 
-fun <T> indexes(array: Array<T>) = Array(array.size, { it })
-fun <T> indexes(array: Iterable<T>) = Array(array.count(), { it })
-fun indexes(array: CharSequence) = Array(array.length, { it })
+fun indexes(array: Array<*>) = Array(array.size) { it }
+fun indexes(array: Iterable<*>) = Array(array.count()) { it }
+fun indexes(array: CharSequence) = Array(array.length) { it }
 
 
-fun <T> rowCols(matrix: List<Iterable<T>>): List<Pair<Int, Int>> {
-    return indexes(matrix).flatMap { rowI -> indexes(matrix[rowI]).map { Pair(rowI, it) } }
+fun rowCols(matrix: Array<Array<*>>): List<Pair<Int, Int>> {
+    return rowCols(matrix.count(), matrix.first().count())
 }
 
-fun <T> rowCols(matrix: Array<Array<T>>): List<Pair<Int, Int>> {
-    return indexes(matrix).flatMap { rowI -> indexes(matrix[rowI]).map { Pair(rowI, it) } }
+fun rowCols(rows: Int, cols: Int): List<Pair<Int, Int>> {
+    return Array(rows) { it }.flatMap { rowI -> Array(cols) { it }.map { Pair(rowI, it) } }
+}
+
+fun rowCols(matrix: Iterable<Iterable<*>>): List<Pair<Int, Int>> {
+    return rowCols(matrix.count(), matrix.first().count())
 }
