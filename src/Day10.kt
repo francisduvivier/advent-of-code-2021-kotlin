@@ -39,8 +39,8 @@ fun main() {
         '<' to 4
     )
 
-    fun part2(input: List<String>): Int {
-        val scores = ArrayList<Int>()
+    fun part2(input: List<String>): Long {
+        val scores = ArrayList<Long>()
         for (line in input) {
             val stack = ArrayList<Char>()
             var corrupt = false;
@@ -61,7 +61,9 @@ fun main() {
                     throw Error("empty stack")
                 }
                 val score =
-                    stack.reversed().map { autoCompleteScoreMap[it]!! }
+                    stack
+                        .reversed()
+                        .map { autoCompleteScoreMap[it]!!.toLong() }
                         .reduce { acc, value -> acc * 5 + value }
                 scores.add(score)
             }
@@ -73,7 +75,7 @@ fun main() {
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day10.test")
     check(part1(testInput) == 26397)
-    check(part2(testInput) == 288957)
+    check(part2(testInput) == 288957.toLong())
 
     val input = readInput("Day10")
     prcp(part1(input))
