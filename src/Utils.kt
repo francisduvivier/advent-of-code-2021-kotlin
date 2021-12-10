@@ -75,6 +75,11 @@ fun rowCols(rows: Int, cols: Int): List<Pair<Int, Int>> {
     return Array(rows) { it }.flatMap { rowI -> Array(cols) { it }.map { Pair(rowI, it) } }
 }
 
+
+fun rowCols(matrix: List<String>): List<Pair<Int, Int>> {
+    return rowCols(matrix.count(), matrix.first().count())
+}
+
 fun rowCols(matrix: Iterable<Iterable<*>>): List<Pair<Int, Int>> {
     return rowCols(matrix.count(), matrix.first().count())
 }
