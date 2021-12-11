@@ -1,11 +1,9 @@
 fun main() {
-    var totalFlashes = 0.toLong()
-    fun increase8Neighbors(board: Array<IntArray>, row: Int, col: Int) {
+    fun increase8Neighbors(board: Array<IntArray>, row: Int, col: Int): Int {
         if (board[row][col] != 10) {
-            return
+            return 0
         }
         board[row][col] = 0
-        totalFlashes++
         val all8NeighborLocs = get8NeighborLocations(board, row, col)
         for ((nRow, nCol) in all8NeighborLocs) {
             val nb = board[nRow][nCol]
@@ -13,12 +11,14 @@ fun main() {
                 board[nRow][nCol]++
             }
         }
+        return 1
     }
 
-    fun part1(input: List<String>): Long {
+    fun part1(input: List<String>): Int {
         val board = input.map { line -> line.toCharArray().map { it.toString().toInt() }.toIntArray() }.toTypedArray()
         val rowCols = rowCols(board)
         val nbStebs = 100
+        var totalFlashes = 0;
         for (step in 1..nbStebs) {
             for ((row, col) in rowCols) {
                 board[row][col]++
@@ -26,41 +26,38 @@ fun main() {
             do {
                 val prevVal = totalFlashes
                 for ((row, col) in rowCols) {
-                    increase8Neighbors(board, row, col)
+                    totalFlashes += increase8Neighbors(board, row, col)
                 }
             } while (prevVal != totalFlashes)
         }
-        val result = totalFlashes
-        totalFlashes = 0;
-        return result
+        return totalFlashes
     }
 
-    fun part2(input: List<String>): Long {
+    fun part2(input: List<String>): Int {
         val board = input.map { line -> line.toCharArray().map { it.toString().toInt() }.toIntArray() }.toTypedArray()
         val rowCols = rowCols(board)
-        val nbStebs = 10000
+        val nbStebs = 100000
         for (step in 1..nbStebs) {
             for ((row, col) in rowCols) {
                 board[row][col]++
             }
             do {
-                val prevVal = totalFlashes
+                var flashes = 0
                 for ((row, col) in rowCols) {
-                    increase8Neighbors(board, row, col)
+                    flashes += increase8Neighbors(board, row, col)
                 }
-            } while (prevVal != totalFlashes)
+            } while (flashes != 0)
             if (board.map { it.sum() }.sum() == 0) {
-                return step.toLong()
+                return step
             }
         }
-        totalFlashes = 0;
-        throw Error("did not find sync point")
+        throw Error("did not find sync point after " + nbStebs + "tries")
     }
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day11.test")
-    check(part1(testInput) == 1656.toLong())
-    check(part2(testInput) == 195.toLong())
+    check(part1(testInput) == 1656)
+    check(part2(testInput) == 195)
 
     val input = readInput("Day11")
     prcp(part1(input))
