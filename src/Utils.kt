@@ -40,6 +40,23 @@ fun prcp(resultString: String) {
     println("Result(copied): " + resultString);
 }
 
+fun get8NeighborLocations(matrix: Array<IntArray>, row: Int, col: Int): List<Pair<Int, Int>> {
+    val nLocs = getNeighborLocations(matrix, row, col).toMutableList()
+    if (row > 0 && col > 0) {
+        nLocs.add(Pair(row - 1, col - 1))
+    }
+    if (row < matrix.size - 1 && col < matrix[row].size - 1) {
+        nLocs.add(Pair(row + 1, col + 1))
+    }
+    if (col > 0 && row < matrix.size - 1) {
+        nLocs.add(Pair(row + 1, col - 1))
+    }
+    if (col < matrix[row].size - 1 && row > 0) {
+        nLocs.add(Pair(row - 1, col + 1))
+    }
+    return nLocs
+}
+
 fun getNeighborLocations(matrix: Array<IntArray>, row: Int, col: Int): List<Pair<Int, Int>> {
     val nLocs = ArrayList<Pair<Int, Int>>()
     if (row > 0) {
@@ -66,6 +83,10 @@ fun indexes(array: Array<*>) = Array(array.size) { it }
 fun indexes(array: Iterable<*>) = Array(array.count()) { it }
 fun indexes(array: CharSequence) = Array(array.length) { it }
 
+
+fun rowCols(matrix: Array<IntArray>): List<Pair<Int, Int>> {
+    return rowCols(matrix.count(), matrix.first().count())
+}
 
 fun rowCols(matrix: Array<Array<*>>): List<Pair<Int, Int>> {
     return rowCols(matrix.count(), matrix.first().count())
