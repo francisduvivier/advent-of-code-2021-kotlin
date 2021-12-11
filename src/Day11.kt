@@ -9,7 +9,7 @@ fun main() {
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day11.test")
-    check(part1(testInput) == 1.toLong())
+    check(part1(testInput) == 1656.toLong())
 
     val input = readInput("Day11")
     prcp(part1(input))
