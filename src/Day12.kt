@@ -1,42 +1,36 @@
 fun main() {
-    class Cave(val name: String, val big: Boolean, val end: Boolean = false) {
+    class Cave(val name: String, val maxVisits: Int, val end: Boolean = false) {
     }
 
     fun isEndNode(currentNode: Cave) = currentNode.end
     fun findAllPathsRec(
         nodeMap: Map<Cave, List<Cave>>,
-        currentPath: List<Cave>,
-        blockedSet: Set<Cave>
-    ): Pair<List<Cave>?, Int> {
-        val currentNode = currentPath.last()
+        currentNode: Cave,
+        blockedSet: Map<Cave, Int>
+    ): Int {
         if (isEndNode(currentNode)) {
-            return Pair(currentPath, 1)
+            return 1
         }
         var bestPath: List<Cave>? = null
         var nbPaths = 0
         for (connectedCave in nodeMap[currentNode]!!) {
-            if (blockedSet.contains(connectedCave)) {
+            if ((blockedSet[connectedCave] ?: 0) >= connectedCave.maxVisits) {
                 continue;
             }
-            val newPath = currentPath.toMutableList()
-            newPath.add(connectedCave)
             var newBlockedSet = blockedSet
-            if (!connectedCave.big) {
-                newBlockedSet = blockedSet.toMutableSet()
-                newBlockedSet.add(connectedCave)
-                newBlockedSet = newBlockedSet.toSet()
+            if (connectedCave.maxVisits < Int.MAX_VALUE) {
+                newBlockedSet = blockedSet.toMutableMap()
+                newBlockedSet.set(connectedCave, (blockedSet[connectedCave] ?: 0) + 1)
+                newBlockedSet = newBlockedSet.toMap()
             }
-            val (newBestPath, newNbPaths) = findAllPathsRec(
+            val newNbPaths = findAllPathsRec(
                 nodeMap,
-                newPath.toList(),
+                connectedCave,
                 newBlockedSet
             )
             nbPaths += newNbPaths
-            if (newBestPath != null && newBestPath.size < (bestPath?.size ?: Int.MAX_VALUE)) {
-                bestPath = newBestPath
-            }
         }
-        return Pair(bestPath, nbPaths)
+        return nbPaths
     }
 
     fun addConnection(connections: HashMap<Cave, ArrayList<Cave>>, cave1: Cave, cave2: Cave) {
@@ -48,8 +42,20 @@ fun main() {
         list.add(cave2)
     }
 
-    fun toCave(connections: HashMap<Cave, ArrayList<Cave>>, name: String) =
-        connections.keys.find { it.name == name } ?: Cave(name, name[0].isUpperCase(), name == "end")
+    fun toCave(connections: HashMap<Cave, ArrayList<Cave>>, name: String): Cave {
+        var maxVisits = Int.MAX_VALUE;
+//        if(name == "start"){
+//            maxVisits = 1
+//        }
+        if (name[0].isLowerCase()) {
+            if (name.length > 1) {
+                maxVisits = 2
+            } else {
+                maxVisits = 1
+            }
+        }
+        return connections.keys.find { it.name == name } ?: Cave(name, maxVisits, name == "end")
+    }
 
     fun createNodeMap(input: List<String>): Map<Cave, ArrayList<Cave>> {
         val connections = HashMap<Cave, ArrayList<Cave>>()
@@ -66,8 +72,8 @@ fun main() {
     fun part1(input: List<String>): Int {
         val nodeMap = createNodeMap(input)
         val startCave = nodeMap.keys.find { it.name == "start" }!!
-        val startList = List(1) { startCave }
-        var (_, nbPaths) = findAllPathsRec(nodeMap, startList, startList.toSet())
+        val endCave = nodeMap.keys.find { it.name == "end" }!!
+        val nbPaths = findAllPathsRec(nodeMap, startCave, mapOf(startCave to 2, endCave to 1))
         return nbPaths
     }
 
@@ -77,9 +83,10 @@ fun main() {
 
     // test if implementation meets criteria from the description, like:
 
-    check(part1(readInput("Day12.test")) == 10)
-    check(part1(readInput("Day12.test2")) == 19)
-    check(part1(readInput("Day12.test3")) == 226)
+    check(part1(readInput("Day12.test")) == 36)
+    check(part1(readInput("Day12.test2")) == 103)
+    check(part1(readInput("Day12.test3")) == 3509)
+//    check(part2(readInput("Day12.test3")) == 226)
     val input = readInput("Day12")
     prcp(part1(input))
     prcp(part2(input))
