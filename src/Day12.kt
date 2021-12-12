@@ -6,7 +6,8 @@ fun main() {
     fun findAllPathsRec(
         nodeMap: Map<Cave, List<Cave>>,
         currentNode: Cave,
-        blockedSet: Map<Cave, Int>
+        blockedSet: Map<Cave, Int>,
+        usedDouble: Boolean = false
     ): Int {
         if (isEndNode(currentNode)) {
             return 1
@@ -14,8 +15,16 @@ fun main() {
         var bestPath: List<Cave>? = null
         var nbPaths = 0
         for (connectedCave in nodeMap[currentNode]!!) {
+            var newUsedDouble = usedDouble
+            if (connectedCave.name == "start") {
+                continue
+            }
             if ((blockedSet[connectedCave] ?: 0) >= connectedCave.maxVisits) {
-                continue;
+                if (usedDouble) {
+                    continue;
+                } else {
+                    newUsedDouble = true;
+                }
             }
             var newBlockedSet = blockedSet
             if (connectedCave.maxVisits < Int.MAX_VALUE) {
@@ -26,7 +35,8 @@ fun main() {
             val newNbPaths = findAllPathsRec(
                 nodeMap,
                 connectedCave,
-                newBlockedSet
+                newBlockedSet,
+                newUsedDouble
             )
             nbPaths += newNbPaths
         }
@@ -44,15 +54,8 @@ fun main() {
 
     fun toCave(connections: HashMap<Cave, ArrayList<Cave>>, name: String): Cave {
         var maxVisits = Int.MAX_VALUE;
-//        if(name == "start"){
-//            maxVisits = 1
-//        }
         if (name[0].isLowerCase()) {
-            if (name.length > 1) {
-                maxVisits = 2
-            } else {
-                maxVisits = 1
-            }
+            maxVisits = 1
         }
         return connections.keys.find { it.name == name } ?: Cave(name, maxVisits, name == "end")
     }
@@ -73,7 +76,7 @@ fun main() {
         val nodeMap = createNodeMap(input)
         val startCave = nodeMap.keys.find { it.name == "start" }!!
         val endCave = nodeMap.keys.find { it.name == "end" }!!
-        val nbPaths = findAllPathsRec(nodeMap, startCave, mapOf(startCave to 2, endCave to 1))
+        val nbPaths = findAllPathsRec(nodeMap, startCave, mapOf(startCave to 1))
         return nbPaths
     }
 
