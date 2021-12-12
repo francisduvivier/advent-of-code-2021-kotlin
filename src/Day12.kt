@@ -48,12 +48,15 @@ fun main() {
         list.add(cave2)
     }
 
+    fun toCave(connections: HashMap<Cave, ArrayList<Cave>>, name: String) =
+        connections.keys.find { it.name == name } ?: Cave(name, name[0].isUpperCase(), name == "end")
+
     fun createNodeMap(input: List<String>): Map<Cave, ArrayList<Cave>> {
         val connections = HashMap<Cave, ArrayList<Cave>>()
         for (line in input) {
             val (first, second) = line.split("-")
-            val cave1 = Cave(first, first[0].isUpperCase(), first == "end")
-            val cave2 = Cave(first, first[0].isUpperCase(), first == "end")
+            val cave1 = toCave(connections, first)
+            val cave2 = toCave(connections, second)
             addConnection(connections, cave1, cave2)
             addConnection(connections, cave2, cave1)
         }
