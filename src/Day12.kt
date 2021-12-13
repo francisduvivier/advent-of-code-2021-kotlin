@@ -75,21 +75,25 @@ fun main() {
     fun part1(input: List<String>): Int {
         val nodeMap = createNodeMap(input)
         val startCave = nodeMap.keys.find { it.name == "start" }!!
-        val endCave = nodeMap.keys.find { it.name == "end" }!!
-        val nbPaths = findAllPathsRec(nodeMap, startCave, mapOf(startCave to 1))
+        val nbPaths = findAllPathsRec(nodeMap, startCave, mapOf(startCave to 1), true)
         return nbPaths
     }
 
     fun part2(input: List<String>): Int {
-        return 0
+        val nodeMap = createNodeMap(input)
+        val startCave = nodeMap.keys.find { it.name == "start" }!!
+        val nbPaths = findAllPathsRec(nodeMap, startCave, mapOf(startCave to 1))
+        return nbPaths
     }
 
     // test if implementation meets criteria from the description, like:
 
-    check(part1(readInput("Day12.test")) == 36)
-    check(part1(readInput("Day12.test2")) == 103)
-    check(part1(readInput("Day12.test3")) == 3509)
-//    check(part2(readInput("Day12.test3")) == 226)
+    check(part1(readInput("Day12.test")) == 10)
+    check(part1(readInput("Day12.test2")) == 19)
+    check(part1(readInput("Day12.test3")) == 226)
+    check(part2(readInput("Day12.test")) == 36)
+    check(part2(readInput("Day12.test2")) == 103)
+    check(part2(readInput("Day12.test3")) == 3509)
     val input = readInput("Day12")
     prcp(part1(input))
     prcp(part2(input))
