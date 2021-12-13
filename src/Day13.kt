@@ -50,9 +50,16 @@ fun main() {
         return foldedMatrix.map { line -> line.count { it } }.sum()
     }
 
-    fun part2(input: List<String>): Int {
-        return 0
+    fun part2(input: List<String>) {
+        val indexOfEmptyLine = input.indexOfFirst { it.isEmpty() }
+        val points =
+            input.subList(0, indexOfEmptyLine).map { it.split(",").map { it.toInt() }.toMutableList() }.toMutableList()
+        val folds = input.subList(indexOfEmptyLine + 1, input.size).map { it.split("=") }
+            .map { (a, b) -> Pair(a.split(" ").last(), b.toInt()) }
+        val foldedMatrix = getFoldedMatrix(points, folds)
+        foldedMatrix.map { println(it.map { if (it) "#" else "." }.joinToString(" ")) }
     }
+
 
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day13.test")
@@ -60,5 +67,5 @@ fun main() {
 
     val input = readInput("Day13")
     prcp(part1(input))
-    prcp(part2(input))
+    (part2(input))
 }
