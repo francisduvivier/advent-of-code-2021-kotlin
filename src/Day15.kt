@@ -16,7 +16,7 @@ fun main() {
             val newCost = currCost + getCost(otherRow, otherCol, row, col)
             if (bestCostMatrix[otherRow][otherCol] > newCost) {
                 bestCostMatrix[otherRow][otherCol] = newCost
-                findBestPathRec(bestCostMatrix, getCost, row, col)
+                findBestPathRec(bestCostMatrix, getCost, otherRow, otherCol)
             }
         }
     }
