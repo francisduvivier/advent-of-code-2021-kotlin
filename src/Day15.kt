@@ -24,8 +24,25 @@ fun main() {
         }
     }
 
-    fun findBestPath(input: List<String>): Long {
-        val matrix = input.map { it.toCharArray().map { it.digitToInt() } }
+    fun processInput(
+        input: List<String>,
+        multiplicator: Int
+    ): List<List<Int>> {
+        var matrix = input.map { it.toCharArray().map { it.digitToInt() } }
+        if (multiplicator > 1) {
+            matrix = List(matrix.size * multiplicator, { row ->
+                List(matrix[0].size * multiplicator,
+                    { col ->
+                        (matrix[row % matrix.size][col % matrix[0].size] + (row / matrix.size) + (col / matrix[0].size)) % 9
+                    })
+                    .map { if (it == 0) 9 else it }
+            })
+        }
+        return matrix
+    }
+
+    fun findBestPath(input: List<String>, multiplicator: Int = 1): Long {
+        var matrix = processInput(input, multiplicator)
         val bestCostMatrix = matrix.map { it.map { Long.MAX_VALUE }.toMutableList() }
         val getCost = { toRow: Int, toCol: Int, fromRow: Int, fromCol: Int -> matrix[toRow][toCol] }
         bestCostMatrix[0][0] = 0.toLong()
@@ -42,8 +59,9 @@ fun main() {
         return bestPathCost
     }
 
-    fun part2(input: List<String>): Int {
-        return 0
+    fun part2(input: List<String>): Long {
+        val bestPathCost = findBestPath(input, 5)
+        return bestPathCost
     }
 
     // test if implementation meets criteria from the description, like:
@@ -52,7 +70,17 @@ fun main() {
     println("part 1 check passed")
 
     val input = readInput("Day15")
-    prcp(part1(input))
+//    prcp(part1(input))
+    val testInput3 = listOf("8")
+    val processedTestInput1 = processInput(testInput3, 5)
+    check("89123" == processedTestInput1[0].joinToString(""))
+    val multipliedInput = readInput("Day15.test2")
+    val processedTestInput = processInput(testInput, 5)
+    check(multipliedInput[0] == processedTestInput[0].joinToString(""))
+    check(part1(multipliedInput) == 315.toLong())
+    println("part 2, processed check passed")
 
+    check(part2(testInput) == 315.toLong())
+    println("part 2, full check passed")
     prcp(part2(input))
 }
