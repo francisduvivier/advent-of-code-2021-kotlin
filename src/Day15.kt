@@ -25,7 +25,7 @@ fun main() {
         val matrix = input.map { it.toCharArray().map { it.digitToInt() } }
         val bestCostMatrix = matrix.map { it.map { Long.MAX_VALUE }.toMutableList() }
         val getCost = { toRow: Int, toCol: Int, fromRow: Int, fromCol: Int -> matrix[toRow][toCol] }
-        bestCostMatrix[0][0] = matrix[0][0].toLong()
+        bestCostMatrix[0][0] = 0.toLong()
         findBestPathRec(bestCostMatrix, getCost, 0, 0)
         return bestCostMatrix.last().last()
     }
