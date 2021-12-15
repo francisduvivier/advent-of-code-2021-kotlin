@@ -8,7 +8,7 @@ fun main() {
         row: Int,
         col: Int,
     ) {
-        if (bestCostMatrix.size >= row || bestCostMatrix[0].size >= col) {
+        if (bestCostMatrix.size <= row || bestCostMatrix[0].size <= col) {
             return;
         }
         val currCost = bestCostMatrix[row][col]
