@@ -7,8 +7,9 @@ fun main() {
         getCost: CostCalcFun,
         row: Int,
         col: Int,
+        recDepth: Int = 0
     ) {
-        if (bestCostMatrix.size <= row || bestCostMatrix[0].size <= col) {
+        if (recDepth > bestCostMatrix.size * 5 || bestCostMatrix.size <= row || bestCostMatrix[0].size <= col) {
             return;
         }
         val currCost = bestCostMatrix[row][col]
@@ -16,7 +17,7 @@ fun main() {
             val newCost = currCost + getCost(otherRow, otherCol, row, col)
             if (bestCostMatrix[otherRow][otherCol] > newCost) {
                 bestCostMatrix[otherRow][otherCol] = newCost
-                findBestPathRec(bestCostMatrix, getCost, otherRow, otherCol)
+                findBestPathRec(bestCostMatrix, getCost, otherRow, otherCol, recDepth + 1)
             }
         }
     }
@@ -42,6 +43,7 @@ fun main() {
     // test if implementation meets criteria from the description, like:
     val testInput = readInput("Day15.test")
     check(part1(testInput) == 40.toLong())
+    println("part 1 check passed")
 
     val input = readInput("Day15")
     prcp(part1(input))
