@@ -75,6 +75,17 @@ fun getNeighborLocations(matrix: Array<IntArray>, row: Int, col: Int): List<Pair
     return nLocs
 }
 
+fun checkWithPrint(toCheck: Boolean) {
+    check(toCheck)
+    println("check passed")
+}
+
+fun <T> checkEquals(actual: T, expected: T) {
+    println("Checking actual [$actual] equals [$expected]")
+    checkWithPrint(actual?.equals(expected) == true)
+
+}
+
 fun getNeighborLocations(matrix: List<List<*>>, row: Int, col: Int): List<Pair<Int, Int>> {
     val nLocs = ArrayList<Pair<Int, Int>>()
     if (row > 0) {

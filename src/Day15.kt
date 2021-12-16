@@ -15,8 +15,9 @@ fun main() {
         val currCost = bestCostMatrix[row][col]
         for ((otherRow, otherCol) in getNeighborLocations(bestCostMatrix, row, col)) {
             val newCost = currCost + getCost(otherRow, otherCol, row, col)
-            if (bestCostMatrix[otherRow][otherCol] > newCost && bestCostMatrix.last()
-                    .last() > newCost + bestCostMatrix.size - 1 - row - bestCostMatrix[0].size - 1 - col
+            if (bestCostMatrix[otherRow][otherCol] > newCost &&
+                bestCostMatrix.last().last() >
+                newCost + bestCostMatrix.size - 1 - otherRow - bestCostMatrix[0].size - 1 - otherCol
             ) {
                 bestCostMatrix[otherRow][otherCol] = newCost
                 findBestPathRec(bestCostMatrix, getCost, otherRow, otherCol, recDepth + 1)
@@ -70,17 +71,15 @@ fun main() {
     println("part 1 check passed")
 
     val input = readInput("Day15")
-//    prcp(part1(input))
+    prcp(part1(input))
     val testInput3 = listOf("8")
     val processedTestInput1 = processInput(testInput3, 5)
-    check("89123" == processedTestInput1[0].joinToString(""))
+    checkEquals("89123", processedTestInput1[0].joinToString(""))
     val multipliedInput = readInput("Day15.test2")
     val processedTestInput = processInput(testInput, 5)
-    check(multipliedInput[0] == processedTestInput[0].joinToString(""))
-    check(part1(multipliedInput) == 315.toLong())
-    println("part 2, processed check passed")
+    checkEquals(multipliedInput[0], processedTestInput[0].joinToString(""))
+    checkEquals(part1(multipliedInput), 315.toLong())
 
-    check(part2(testInput) == 315.toLong())
-    println("part 2, full check passed")
+    checkEquals(part2(testInput), 315.toLong())
     prcp(part2(input))
 }
