@@ -1,7 +1,31 @@
 fun main() {
+    fun calcIncreasingSum(maxVal: Int): Int {
+        return maxVal * (maxVal + 1) / 2
+    }
+
+    fun findVelocityForRangeSteps(range: IntRange, steps: Int): Int? {
+        for (velocity in 0..range.last) {
+            val endPosition = velocity * Math.min(steps, velocity) - calcIncreasingSum(Math.min(steps, velocity) - 1)
+            if (range.contains(endPosition)) {
+                return velocity
+            }
+        }
+        return null
+    }
 
     fun part1(x: IntRange, y: IntRange): Int {
-        return 1
+
+        for (currVelYTry in -y.first - 1..-y.first - 1) {
+            println("currVelYTry: $currVelYTry")
+            for (currEndYTry in y) {
+                val nbSteps = 2 * currVelYTry + 1
+                val matchingX = findVelocityForRangeSteps(x, nbSteps)
+                if (matchingX != null) {
+                    return calcIncreasingSum(currVelYTry)
+                }
+            }
+        }
+        return -1
     }
 
     fun part2(x: IntRange, y: IntRange): Int {
