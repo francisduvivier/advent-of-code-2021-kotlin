@@ -54,9 +54,12 @@ open class PairOrNumber(
     }
 
     fun trySplit(): Boolean {
+        println("trySplit: " + this.toString())
         if (number != null && number!! >= 10) {
+            println("splitting" + this.toString())
             this.left = SN(number!! / 2)
             this.right = SN(Math.ceil(number!!.toDouble() / 2).toInt())
+            this.number = null
             return true;
         } else if (number == null) {
             return this.left!!.trySplit() || this.right!!.trySplit()
@@ -79,6 +82,7 @@ open class PairOrNumber(
     }
 
     private fun tryExplode(nbParents: Int): Boolean {
+        println("tryExplode " + this.toString())
         if (this.number != null) {
             return false
         }
@@ -93,13 +97,17 @@ open class PairOrNumber(
             if (firstLeft?.number != null) {
                 firstLeft.number = firstLeft.number!! + this.right!!.number!!
             }
+            number = 0
+            left = null
+            right = null
+//            println("exploding " + this.toString())
             return true
         }
         return this.left!!.tryExplode(nbParents + 1) || this.right!!.tryExplode(nbParents + 1)
     }
 
     fun getFirstLeft(): SN? {
-        if (parent?.left == this) {
+        if (parent?.right == this) {
             return parent.getFirstLeft()
         } else {
             return parent?.rightMost()
@@ -114,7 +122,7 @@ open class PairOrNumber(
     }
 
     fun getFirstRight(): SN? {
-        if (parent?.right == this) {
+        if (parent?.left == this) {
             return parent.getFirstRight()
         } else {
             return parent?.leftMost()
@@ -125,7 +133,7 @@ open class PairOrNumber(
         if (number != null) {
             return this;
         }
-        return right?.leftMost()
+        return left?.leftMost()
     }
 
 
