@@ -2,7 +2,8 @@ typealias SN = PairOrNumber
 
 fun main() {
     fun part1(input: List<String>): Long {
-        var result = addSnailLines(input.subList(0, 1))
+        var result = parseSnails(input[0])
+
         for (line in input.subList(1, input.size)) {
             result = SN(result, parseSnails(line))
             result.reduce()
@@ -33,6 +34,9 @@ fun main() {
     val snails3 = parseSnails("[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]")
     checkEquals(snails3.tryExplode(), true)
     checkEquals(snails3.toString(), "[[3,[2,[8,0]]],[9,[5,[7,0]]]]")
+    checkEquals(part1(listOf("[1,1]","[2,2]","[3,3]","[4,4]","[5,5]","[6,6]")), parseSnails("[[[[5,0],[7,4]],[5,5]],[6,6]]").sum())
+    println("---------------------------------------------------")
+    checkEquals(part1(listOf("[1,1]","[2,2]","[3,3]","[4,4]","[5,5]")), parseSnails("[[[[3,0],[5,3]],[4,4]],[5,5]]").sum())
     checkEquals(part1(testInput), 4140)
 
     val input = readInput("Day18")
@@ -68,7 +72,7 @@ open class PairOrNumber(
         if (number != null && number!! >= 10) {
             println("splitting" + this.toString())
             this.left = SN(number!! / 2)
-            this.right = SN(Math.ceil(number!!.toDouble() / 2).toInt())
+            this.right = SN((number!! + 1) / 2)
             this.number = null
             return true;
         } else if (number == null) {
