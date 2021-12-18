@@ -17,8 +17,20 @@ fun main() {
         return result.sum()
     }
 
-    fun part2(input: List<String>): Int {
-        return 0
+    fun part2(input: List<String>): Long {
+        var max = 0L
+        for (first in input) {
+            for (second in input) {
+                if (first == second) {
+                    continue
+                }
+                val newVal = part1(listOf(first, second))
+                if (newVal > max) {
+                    max = newVal
+                }
+            }
+        }
+        return max
     }
 
     // test if implementation meets criteria from the description, like:
@@ -52,7 +64,7 @@ fun main() {
 
     val input = readInput("Day18")
     prcp(part1(input))
-    checkEquals(part2(testInput), 0)
+    checkEquals(part2(testInput), 3993)
     prcp(part2(input))
 }
 
