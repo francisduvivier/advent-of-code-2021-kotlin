@@ -22,7 +22,17 @@ fun main() {
     checkEquals(parseSnails(testReduceResult).toString(), testReduceResult)
     checkEquals(addSnailLines(listOf("[1,2]", "[[3,4],5]")).toString(), "[[1,2],[[3,4],5]]")
     checkEquals(parseSnails(testReduceResult).sum(), 4140)
+    val snails = parseSnails("[[[[[9,8],1],2],3],4]")
+    checkEquals(snails.tryExplode(), true)
+    checkEquals(snails.toString(), "[[[[0,9],2],3],4]")
 //    checkEquals(addSnailLines(testInput).reduce().toString(), testReduceResult)
+
+    val snails2 = parseSnails("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]")
+    checkEquals(snails2.tryExplode(), true)
+    checkEquals(snails2.toString(), "[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]")
+    val snails3 = parseSnails("[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]")
+    checkEquals(snails3.tryExplode(), true)
+    checkEquals(snails3.toString(), "[[3,[2,[8,0]]],[9,[5,[7,0]]]]")
     checkEquals(part1(testInput), 4140)
 
     val input = readInput("Day18")
@@ -76,17 +86,18 @@ open class PairOrNumber(
     }
 
     fun reduce(): SN {
-        while (this.tryExplode(0) || this.trySplit()) {
+        while (this.tryExplode() || this.trySplit()) {
         }
         return this
     }
 
-    private fun tryExplode(nbParents: Int): Boolean {
+    fun tryExplode(nbParents: Int = 0): Boolean {
         println("tryExplode " + this.toString())
         if (this.number != null) {
             return false
         }
         if (nbParents == 4 && number == null) {
+            println("exploding " + this.toString())
             check(right!!.number != null)
             check(left!!.number != null)
             val firstRight = this.getFirstRight()
@@ -95,22 +106,21 @@ open class PairOrNumber(
             }
             val firstLeft = this.getFirstLeft()
             if (firstLeft?.number != null) {
-                firstLeft.number = firstLeft.number!! + this.right!!.number!!
+                firstLeft.number = firstLeft.number!! + this.left!!.number!!
             }
             number = 0
             left = null
             right = null
-//            println("exploding " + this.toString())
             return true
         }
         return this.left!!.tryExplode(nbParents + 1) || this.right!!.tryExplode(nbParents + 1)
     }
 
     fun getFirstLeft(): SN? {
-        if (parent?.right == this) {
+        if (parent?.left == this) {
             return parent.getFirstLeft()
         } else {
-            return parent?.rightMost()
+            return parent?.left?.rightMost()
         }
     }
 
@@ -122,10 +132,10 @@ open class PairOrNumber(
     }
 
     fun getFirstRight(): SN? {
-        if (parent?.left == this) {
+        if (parent?.right == this) {
             return parent.getFirstRight()
         } else {
-            return parent?.leftMost()
+            return parent?.right?.leftMost()
         }
     }
 
@@ -135,16 +145,6 @@ open class PairOrNumber(
         }
         return left?.leftMost()
     }
-
-
-    private fun addFirstRight(right: SN) {
-        TODO("Not yet implemented")
-    }
-
-    private fun rightNumber(): Int {
-        TODO("Not yet implemented")
-    }
-
 }
 
 fun addSnailLines(testInput: List<String>): SN {
@@ -196,9 +196,7 @@ fun parseSnails(s: String): SN {
             }
             ']' -> currPair = currPair.parent!!
             ',' -> {} //do nothing
-            else -> {
-                currPair.setNumber(char)
-            }
+            else -> currPair.setNumber(char)
         }
     }
     check(currPair == outerPair)
