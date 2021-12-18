@@ -40,9 +40,6 @@ fun main() {
     checkEquals(snails3.tryExplode(), true)
     checkEquals(snails3.toString(), "[[3,[2,[8,0]]],[9,[5,[7,0]]]]")
     println("---------------------------------------------------")
-    println("---------------------------------------------------")
-    println("---------------------------------------------------")
-    println("---------------------------------------------------")
     checkEquals(
         part1(listOf("[1,1]", "[2,2]", "[3,3]", "[4,4]", "[5,5]")),
         parseSnails("[[[[3,0],[5,3]],[4,4]],[5,5]]").sum()
@@ -83,9 +80,9 @@ open class PairOrNumber(
     }
 
     fun trySplit(): Boolean {
-        println("trySplit: " + this.toString())
+//        println("trySplit: " + this.toString())
         if (number != null && number!! >= 10) {
-            println("splitting" + this.toString())
+//            println("splitting" + this.toString())
             this.left = SN(number = number!! / 2, parent = this)
             this.right = SN(number = (number!! + 1) / 2, parent = this)
             this.number = null
@@ -111,12 +108,12 @@ open class PairOrNumber(
     }
 
     fun tryExplode(nbParents: Int = 0): Boolean {
-        println("tryExplode " + this.toString())
+//        println("tryExplode " + this.toString())
         if (this.number != null) {
             return false
         }
         if (nbParents == 4 && number == null) {
-            println("exploding " + this.toString())
+//            println("exploding " + this.toString())
             check(right!!.number != null)
             check(left!!.number != null)
             val firstRight = this.getFirstRight()
