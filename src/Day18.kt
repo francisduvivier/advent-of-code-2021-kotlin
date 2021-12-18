@@ -1,8 +1,13 @@
 typealias SN = PairOrNumber
 
 fun main() {
-    fun part1(input: List<String>): Int {
-        return input.size
+    fun part1(input: List<String>): Long {
+        var result = addSnailLines(input.subList(0, 1))
+        for (line in input.subList(1, input.size)) {
+            result = SN(result, parseSnails(line))
+            result.reduce()
+        }
+        return result.sum()
     }
 
     fun part2(input: List<String>): Int {
@@ -17,7 +22,7 @@ fun main() {
     checkEquals(parseSnails(testReduceResult).toString(), testReduceResult)
     checkEquals(addSnailLines(listOf("[1,2]", "[[3,4],5]")).toString(), "[[1,2],[[3,4],5]]")
     checkEquals(parseSnails(testReduceResult).sum(), 4140)
-    checkEquals(reduceSnails(addSnailLines(testInput)).toString(), testReduceResult)
+//    checkEquals(addSnailLines(testInput).reduce().toString(), testReduceResult)
     checkEquals(part1(testInput), 4140)
 
     val input = readInput("Day18")
@@ -26,11 +31,12 @@ fun main() {
     prcp(part2(input))
 }
 
-fun reduceSnails(addSnailLines: SN): Any {
-    TODO("Not yet implemented")
-}
-
-open class PairOrNumber(var first: SN? = null, var second: SN? = null, var number: Int? = null) {
+open class PairOrNumber(
+    var left: SN? = null,
+    var right: SN? = null,
+    var number: Int? = null,
+    val parent: SnailBuilder? = null,
+) {
     constructor(numberOnly: Int) : this(number = numberOnly)
 
     constructor(firstOnly: Int, secondOnly: Int) : this(SN(firstOnly), SN(secondOnly))
@@ -43,16 +49,92 @@ open class PairOrNumber(var first: SN? = null, var second: SN? = null, var numbe
         if (number != null) {
             return number.toString()
         } else {
-            return "[${first.toString()},${second.toString()}]"
+            return "[${left.toString()},${right.toString()}]"
         }
+    }
+
+    fun trySplit(): Boolean {
+        if (number != null && number!! >= 10) {
+            this.left = SN(number!! / 2)
+            this.right = SN(Math.ceil(number!!.toDouble() / 2).toInt())
+            return true;
+        } else if (number == null) {
+            return this.left!!.trySplit() || this.right!!.trySplit()
+        }
+        return false
     }
 
     fun sum(): Long {
         if (number != null) {
             return number!!.toLong()
         } else {
-            return 3 * first!!.sum() + 2 * second!!.sum()
+            return 3 * left!!.sum() + 2 * right!!.sum()
         }
+    }
+
+    fun reduce(): SN {
+        while (this.tryExplode(0) || this.trySplit()) {
+        }
+        return this
+    }
+
+    private fun tryExplode(nbParents: Int): Boolean {
+        if (this.number != null) {
+            return false
+        }
+        if (nbParents == 4 && number == null) {
+            check(right!!.number != null)
+            check(left!!.number != null)
+            val firstRight = this.getFirstRight()
+            if (firstRight?.number != null) {
+                firstRight.number = firstRight.number!! + this.right!!.number!!
+            }
+            val firstLeft = this.getFirstLeft()
+            if (firstLeft?.number != null) {
+                firstLeft.number = firstLeft.number!! + this.right!!.number!!
+            }
+            return true
+        }
+        return this.left!!.tryExplode(nbParents + 1) || this.right!!.tryExplode(nbParents + 1)
+    }
+
+    fun getFirstLeft(): SN? {
+        if (parent?.left == this) {
+            return parent.getFirstLeft()
+        } else {
+            return parent?.rightMost()
+        }
+    }
+
+    fun rightMost(): SN? {
+        if (number != null) {
+            return this;
+        }
+        return right?.rightMost()
+    }
+
+    fun getFirstRight(): SN? {
+        if (parent?.right == this) {
+            return parent.getFirstRight()
+        } else {
+            return parent?.leftMost()
+        }
+    }
+
+    fun leftMost(): SN? {
+        if (number != null) {
+            return this;
+        }
+        return right?.leftMost()
+    }
+
+
+    private fun addFirstRight(right: SN) {
+        TODO("Not yet implemented")
+    }
+
+    private fun rightNumber(): Int {
+        TODO("Not yet implemented")
     }
 
 }
@@ -66,7 +148,7 @@ fun addSnailLines(testInput: List<String>): SN {
 }
 
 
-class SnailBuilder(val parent: SnailBuilder?, var currFirst: Boolean = true) : SN() {
+class SnailBuilder(parent: SnailBuilder?, var currFirst: Boolean = true) : SN(parent = parent) {
     private var done: Boolean = false
 
     fun recurse(): SnailBuilder {
@@ -80,10 +162,10 @@ class SnailBuilder(val parent: SnailBuilder?, var currFirst: Boolean = true) : S
             throw Error("trying to change a finished snailbuilder")
         }
         if (currFirst) {
-            this.first = newBuilder
+            this.left = newBuilder
             currFirst = false
         } else {
-            this.second = newBuilder
+            this.right = newBuilder
             this.done = true;
         }
     }
