@@ -7,7 +7,7 @@ class Pos3D(val x: Int, val y: Int, val z: Int) {
     }
 
     fun diff(other: Pos3D): Pos3D {
-        return Pos3D(all.mapIndexed { it, index -> it - other.all[index] })
+        return Pos3D(all.mapIndexed { index, it -> it - other.all[index] })
     }
 
     fun orient(orientation: Orientation): Pos3D {
@@ -15,11 +15,15 @@ class Pos3D(val x: Int, val y: Int, val z: Int) {
     }
 
     fun add(other: Pos3D): Pos3D {
-        return Pos3D(all.mapIndexed { it, index -> it + other.all[index] })
+        return Pos3D(all.mapIndexed { index, it -> it + other.all[index] })
     }
 }
 
-typealias RawScannerData = List<Pos3D>
+class RawScannerData(val id: Int) : ArrayList<Pos3D>() {
+    override fun toString(): String {
+        return "id [${id}]"
+    }
+}
 
 class Orientation(val direction: Dir3D, val rotation: Dir2D) {
     fun mutatePos(pos3D: Pos3D): Pos3D {
@@ -30,13 +34,17 @@ class Orientation(val direction: Dir3D, val rotation: Dir2D) {
 class MappedScanner(val rawScannerData: RawScannerData, val orientation: Orientation, val position: Pos3D) {
     val normalizedScannerData = rawScannerData.map { normalizeCoords(it, orientation, position) }
     val normalizedScannerIds = normalizedScannerData.map { it.toString() }
+    override fun toString(): String {
+        return "id [${rawScannerData.id}] points [${normalizedScannerIds.joinToString(";")}]"
+    }
 }
 
-enum class Dir2D(val xMult: Int, val yMult: Int) {
-    UP(1, 1), DOWN(1, -1), LEFT(-1, 1), RIGHT(-1, -1);
+enum class Dir2D(val xMult: Int, val yMult: Int, val zMult: Int = 1) {
+    UP(1, 1), DOWN(1, -1), LEFT(-1, 1), RIGHT(-1, -1),
+    UP2(1, 1, -1), DOWN2(1, -1, -1), LEFT2(-1, 1, -1), RIGHT2(-1, -1, -1);
 
     fun mutatePos(pos: Pos3D): Pos3D {
-        return Pos3D(pos.x * xMult, pos.y * yMult, pos.z)
+        return Pos3D(pos.x * xMult, pos.y * yMult, pos.z * zMult)
     }
 }
 
@@ -79,14 +87,26 @@ fun main() {
     }
 
     fun findNbSame(newMappedScanner: MappedScanner, mappedScanner: MappedScanner): Int {
-        val intersection = mappedScanner.normalizedScannerIds.intersect(newMappedScanner.normalizedScannerIds)
+        val intersection =
+            mappedScanner.normalizedScannerIds.toSet().intersect(newMappedScanner.normalizedScannerIds.toSet())
         println("intersection: ${intersection.joinToString(";")}")
+        if (intersection.size == 0) {
+            throw Error(
+                """Invalid state, the way this is set up should always result in at least 1 overlap,
+                |${newMappedScanner}
+                |${mappedScanner}
+            """.trimMargin()
+            )
+        }
         return intersection.size
     }
 
-    fun tryMapScanner(rawScanner: List<Pos3D>, mappedScanner: MappedScanner): MappedScanner? {
+    fun tryMapScanner(rawScanner: RawScannerData, mappedScanner: MappedScanner): MappedScanner? {
+        println("try map scanner [$mappedScanner]")
+        println("on scanner [$rawScanner]")
         for (orientation in allOrientations) {
-            for (scannerPosition in getPossibleScannerPositions(rawScanner, mappedScanner)) {
+            val orientedRawScanner = MappedScanner(rawScanner, orientation, Pos3D(0, 0, 0)).normalizedScannerData
+            for (scannerPosition in getPossibleScannerPositions(orientedRawScanner, mappedScanner)) {
                 val newMappedScanner = MappedScanner(rawScanner, orientation, scannerPosition)
                 val nbMatches: Int = findNbSame(newMappedScanner, mappedScanner)
                 if (nbMatches > 12) {
@@ -99,11 +119,12 @@ fun main() {
 
     fun parseRawScannerData(input: List<String>): MutableList<RawScannerData> {
         val scanners = ArrayList<RawScannerData>()
-        var currScanner: ArrayList<Pos3D> = ArrayList()
+        var id = 0
+        var currScanner: RawScannerData = RawScannerData(id++)
         for (line in input.subList(1, input.size)) {
             if (line.matches(".*scanner.*".toRegex())) {
                 scanners.add(currScanner)
-                currScanner = ArrayList()
+                currScanner = RawScannerData(id++)
             } else {
                 if (!line.isEmpty()) {
                     currScanner.add(Pos3D(line.split(",").map { it.toInt() }))
@@ -111,15 +132,21 @@ fun main() {
             }
         }
         scanners.add(currScanner)
+        println("Scanners parsed: size [${scanners.size}][${scanners[0].size}]")
         return scanners
     }
 
     fun part1(input: List<String>): Int {
         val scannersLeft: MutableList<RawScannerData> = parseRawScannerData(input)
         val mappedScanners: MutableList<MappedScanner> = ArrayList()
-        var lastMappedScanners: MutableList<MappedScanner> = ArrayList()
+        val firstScanner = MappedScanner(scannersLeft[0], Orientation(Dir3D.UP, Dir2D.UP), Pos3D(0, 0, 0))
+        scannersLeft.remove(scannersLeft[0])
+        var lastMappedScanners: MutableList<MappedScanner> = arrayListOf(firstScanner)
         while (scannersLeft.size > 0) {
             val newMappedScanners: MutableList<MappedScanner> = ArrayList()
+            if (lastMappedScanners.size == 0) {
+                throw Error("Failed to map all scanners, left: ${scannersLeft.size}")
+            }
             for (lastMappedScanner in lastMappedScanners) {
                 for (rawScanner in scannersLeft.toList()) {
                     val mappedScanner = tryMapScanner(rawScanner, lastMappedScanner)
