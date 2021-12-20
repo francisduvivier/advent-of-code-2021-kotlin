@@ -140,10 +140,12 @@ fun main() {
         return 0
     }
 
-    // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day19.test")
+
+    val day = 19
+    println("Starting Day${day}")
+    val testInput = readInput("Day${day}.test")
     checkEquals(part1(testInput), 79)
-    val input = readInput("Day19")
+    val input = readInput("Day${day}")
     prcp(part1(input))
     checkEquals(part2(testInput), 0)
     prcp(part2(input))
