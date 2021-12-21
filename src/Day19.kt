@@ -25,7 +25,7 @@ class RawScannerData(val id: Int) : ArrayList<Pos3D>() {
     }
 }
 
-class Orientation(val direction: Dir3D, val rotation: Dir2D) {
+class Orientation(val direction: Facing, val rotation: Rotation) {
     fun mutatePos(pos3D: Pos3D): Pos3D {
         return rotation.mutatePos(direction.mutatePos(pos3D))
     }
@@ -39,7 +39,7 @@ class MappedScanner(val rawScannerData: RawScannerData, val orientation: Orienta
     }
 }
 
-enum class Dir2D(val xMult: Int, val yMult: Int, val zMult: Int = 1) {
+enum class Rotation(val xMult: Int, val yMult: Int, val zMult: Int = 1) {
     UP(1, 1), DOWN(1, -1), LEFT(-1, 1), RIGHT(-1, -1),
     UP2(1, 1, -1), DOWN2(1, -1, -1), LEFT2(-1, 1, -1), RIGHT2(-1, -1, -1);
 
@@ -48,7 +48,7 @@ enum class Dir2D(val xMult: Int, val yMult: Int, val zMult: Int = 1) {
     }
 }
 
-enum class Dir3D(val mutator: (Pos3D) -> Pos3D) {
+enum class Facing(val mutator: (Pos3D) -> Pos3D) {
     UP({ Pos3D(it.x, it.y, it.z) }),
     DOWN({ Pos3D(it.x, it.z, it.y) }),
     LEFT({ Pos3D(it.z, it.x, it.y) }),
@@ -61,7 +61,7 @@ enum class Dir3D(val mutator: (Pos3D) -> Pos3D) {
     }
 }
 
-val allOrientations = Dir3D.values().map { dir3d -> Dir2D.values().map { Orientation(dir3d, it) } }.flatten()
+val allOrientations = Facing.values().map { dir3d -> Rotation.values().map { Orientation(dir3d, it) } }.flatten()
 
 
 private fun normalizeCoords(
@@ -89,7 +89,7 @@ fun main() {
     fun findNbSame(newMappedScanner: MappedScanner, mappedScanner: MappedScanner): Int {
         val intersection =
             mappedScanner.normalizedScannerIds.toSet().intersect(newMappedScanner.normalizedScannerIds.toSet())
-        println("intersection: ${intersection.joinToString(";")}")
+
         if (intersection.size == 0) {
             throw Error(
                 """Invalid state, the way this is set up should always result in at least 1 overlap,
@@ -97,6 +97,8 @@ fun main() {
                 |${mappedScanner}
             """.trimMargin()
             )
+        } else if (intersection.size > 1) {
+            println("intersection: size[${intersection.size}]: ${intersection.joinToString(";")}")
         }
         return intersection.size
     }
@@ -139,7 +141,7 @@ fun main() {
     fun part1(input: List<String>): Int {
         val scannersLeft: MutableList<RawScannerData> = parseRawScannerData(input)
         val mappedScanners: MutableList<MappedScanner> = ArrayList()
-        val firstScanner = MappedScanner(scannersLeft[0], Orientation(Dir3D.UP, Dir2D.UP), Pos3D(0, 0, 0))
+        val firstScanner = MappedScanner(scannersLeft[0], Orientation(Facing.UP, Rotation.UP), Pos3D(0, 0, 0))
         scannersLeft.remove(scannersLeft[0])
         var lastMappedScanners: MutableList<MappedScanner> = arrayListOf(firstScanner)
         while (scannersLeft.size > 0) {
