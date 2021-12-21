@@ -1,3 +1,5 @@
+import kotlin.math.absoluteValue
+
 class Pos3D(val x: Int, val y: Int, val z: Int) {
     constructor(list: List<Int>) : this(list[0], list[1], list[2])
 
@@ -29,6 +31,10 @@ class Pos3D(val x: Int, val y: Int, val z: Int) {
         } catch (e: Error) {
             return false
         }
+    }
+
+    fun manHattan(): Int {
+        return all.map { it.absoluteValue }.sum()
     }
 }
 
@@ -136,8 +142,7 @@ fun main() {
         return scanners
     }
 
-    fun part1(input: List<String>): Int {
-        val scannersLeft: MutableList<RawScannerData> = parseRawScannerData(input)
+    fun mapScanners(scannersLeft: MutableList<RawScannerData>): MutableList<MappedScanner> {
         val mappedScanners: MutableList<MappedScanner> = ArrayList()
         val firstScanner = MappedScanner(scannersLeft[0], Orientation(Facing.F1, Rotation.R1), Pos3D(0, 0, 0))
         scannersLeft.remove(scannersLeft[0])
@@ -160,12 +165,23 @@ fun main() {
             }
             lastMappedScanners = newMappedScanners
         }
+        return mappedScanners
+    }
+
+    fun part1(input: List<String>): Int {
+        val scannersLeft: MutableList<RawScannerData> = parseRawScannerData(input)
+        val mappedScanners = mapScanners(scannersLeft)
         val beaconSet = mappedScanners.map { it.normalizedScannerIds }.flatten().toSet()
         return beaconSet.size
     }
 
     fun part2(input: List<String>): Int {
-        return 0
+        val scannersLeft: MutableList<RawScannerData> = parseRawScannerData(input)
+        val beaconSet = mapScanners(scannersLeft)
+        val manhattanDists =
+            beaconSet.map { first -> beaconSet.map { other -> other.position.diff(first.position) } }.flatten()
+                .map { it.manHattan() }
+        return manhattanDists.maxOrNull()!!
     }
 
 
@@ -175,7 +191,7 @@ fun main() {
     checkEquals(part1(testInput), 79)
     val input = readInput("Day${day}")
     prcp(part1(input))
-    checkEquals(part2(testInput), 0)
+    checkEquals(part2(testInput), 3621)
     prcp(part2(input))
 }
 
