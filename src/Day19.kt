@@ -53,8 +53,8 @@ class MappedScanner(val rawScannerData: RawScannerData, val orientation: Orienta
 }
 
 enum class Rotation(val xMult: Int, val yMult: Int, val zMult: Int = 1) {
-    UP(1, 1), DOWN(1, -1), LEFT(-1, 1), RIGHT(-1, -1),
-    UP2(1, 1, -1), DOWN2(1, -1, -1), LEFT2(-1, 1, -1), RIGHT2(-1, -1, -1);
+    R1(1, 1), R2(1, -1), R3(-1, 1), R4(-1, -1),
+    R5(1, 1, -1), R6(1, -1, -1), R7(-1, 1, -1), R8(-1, -1, -1);
 
     fun mutatePos(pos: Pos3D): Pos3D {
         return Pos3D(pos.x * xMult, pos.y * yMult, pos.z * zMult)
@@ -62,12 +62,12 @@ enum class Rotation(val xMult: Int, val yMult: Int, val zMult: Int = 1) {
 }
 
 enum class Facing(val mutator: (Pos3D) -> Pos3D) {
-    UP({ Pos3D(it.x, it.y, it.z) }),
-    DOWN({ Pos3D(it.x, it.z, it.y) }),
-    LEFT({ Pos3D(it.z, it.x, it.y) }),
-    RIGHT({ Pos3D(it.z, it.y, it.x) }),
-    BACK({ Pos3D(it.y, it.x, it.z) }),
-    FRONT({ Pos3D(it.y, it.z, it.x) });
+    F1({ Pos3D(it.x, it.y, it.z) }),
+    F2({ Pos3D(it.x, it.z, it.y) }),
+    F3({ Pos3D(it.z, it.x, it.y) }),
+    F4({ Pos3D(it.z, it.y, it.x) }),
+    F5({ Pos3D(it.y, it.x, it.z) }),
+    F6({ Pos3D(it.y, it.z, it.x) });
 
     fun mutatePos(pos: Pos3D): Pos3D {
         return mutator(pos)
@@ -139,7 +139,7 @@ fun main() {
     fun part1(input: List<String>): Int {
         val scannersLeft: MutableList<RawScannerData> = parseRawScannerData(input)
         val mappedScanners: MutableList<MappedScanner> = ArrayList()
-        val firstScanner = MappedScanner(scannersLeft[0], Orientation(Facing.UP, Rotation.UP), Pos3D(0, 0, 0))
+        val firstScanner = MappedScanner(scannersLeft[0], Orientation(Facing.F1, Rotation.R1), Pos3D(0, 0, 0))
         scannersLeft.remove(scannersLeft[0])
         mappedScanners.add(firstScanner)
         var lastMappedScanners: MutableList<MappedScanner> = arrayListOf(firstScanner)
