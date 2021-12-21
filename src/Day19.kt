@@ -111,7 +111,7 @@ fun main() {
             for (scannerPosition in getPossibleScannerPositions(orientedRawScanner, mappedScanner)) {
                 val newMappedScanner = MappedScanner(rawScanner, orientation, scannerPosition)
                 val nbMatches: Int = findNbSame(newMappedScanner, mappedScanner)
-                if (nbMatches > 12) {
+                if (nbMatches >= 12) {
                     return newMappedScanner
                 }
             }
