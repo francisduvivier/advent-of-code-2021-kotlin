@@ -11,7 +11,7 @@ fun main() {
         for (line in input) {
             val ranges = getRanges(line)
             if (allowedRange != null && ranges.find {
-                    it.first < -allowedRange.first || it.last > allowedRange.last
+                    it.first < allowedRange.first || it.last > allowedRange.last
                 } != null) {
                 continue
             }
@@ -29,7 +29,7 @@ fun main() {
     fun part1(input: List<String>): Long {
         val allowedRange: IntRange = -50..50
         val state = calcStateMap(input, allowedRange)
-        return Math.pow(allowedRange.count().toDouble(), 3.0).toLong() - state.count { entry -> entry.value }
+        return state.count { entry -> entry.value }.toLong()
     }
 
     fun part2(input: List<String>): Int {
