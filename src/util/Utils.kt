@@ -133,3 +133,4 @@ fun rowCols(matrix: List<String>): List<Pair<Int, Int>> {
 fun rowCols(matrix: Iterable<Iterable<*>>): List<Pair<Int, Int>> {
     return rowCols(matrix.count(), matrix.first().count())
 }
+
