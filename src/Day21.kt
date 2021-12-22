@@ -36,19 +36,17 @@ fun main() {
         for (dieOption in dieOptions) {
             var newTurnIndex = state.turnIndex
             var newScores = state.scores
-            var newScoreAddition = state.currScoreAddition
-                newScoreAddition += dieOption
+            var newScoreAddition = state.currScoreAddition + dieOption
             var newBoardPlaces = state.boardPlaces
-            var newDiceIndex = (state.diceIndex + 1) % 3
-            if (newDiceIndex == 2) {
+            if (state.diceIndex == 2) {
                 newScores = newScores.toMutableList()
                 newBoardPlaces = newBoardPlaces.toMutableList()
                 newBoardPlaces[newTurnIndex] = (newBoardPlaces[newTurnIndex] + newScoreAddition) % 10
                 newScores[newTurnIndex] += newBoardPlaces[newTurnIndex] + 1
                 newScoreAddition = 0
-                newDiceIndex = 0
                 newTurnIndex = (newTurnIndex + 1) % state.scores.size
             }
+            val newDiceIndex = (state.diceIndex + 1) % 3
             newStates.add(GameState(newTurnIndex, newDiceIndex, newScores, newScoreAddition, newBoardPlaces))
         }
         return newStates
