@@ -35,13 +35,15 @@ fun main() {
         val newStates = ArrayList<GameState>()
         for (dieOption in dieOptions) {
             var newTurnIndex = state.turnIndex
-            var newDiceIndex = state.diceIndex + 1
             var newScores = state.scores
-            var newScoreAddition = state.currScoreAddition + dieOption
-            val newBoardPlaces = state.boardPlaces.toMutableList()
-            newBoardPlaces[newTurnIndex] = (newBoardPlaces[newTurnIndex] + newScoreAddition) % 10
-            if (newDiceIndex == 3) {
+            var newScoreAddition = state.currScoreAddition
+                newScoreAddition += dieOption
+            var newBoardPlaces = state.boardPlaces
+            var newDiceIndex = (state.diceIndex + 1) % 3
+            if (newDiceIndex == 2) {
                 newScores = newScores.toMutableList()
+                newBoardPlaces = newBoardPlaces.toMutableList()
+                newBoardPlaces[newTurnIndex] = (newBoardPlaces[newTurnIndex] + newScoreAddition) % 10
                 newScores[newTurnIndex] += newBoardPlaces[newTurnIndex] + 1
                 newScoreAddition = 0
                 newDiceIndex = 0
@@ -81,8 +83,13 @@ fun main() {
     println("Starting Day${day}")
     checkEquals(part1(4, 8), 739785)
     prcp(part1(1, 6))
+    fun makeGameState(): GameState {
+        return GameState(1, 2, listOf(0, 0), 4, listOf(3, 6))
+    }
+    checkEquals(makeGameState(), makeGameState())
+    checkEquals(setOf(makeGameState(), makeGameState()).size, 1)
     checkEquals(part2(4, 8), 444356092776315)
-//    prcp(part2(input))
+    prcp(part2(1, 6))
 }
 
 class GameState(
@@ -91,10 +98,18 @@ class GameState(
 ) {
 
     override fun toString(): String {
-        return "t$turnIndex;$diceIndex;${scores.joinToString(",")};${boardPlaces.joinToString(",")};$currScoreAddition+"
+        return "t$turnIndex;$diceIndex;${scores.joinToString(",")};${boardPlaces.joinToString(",")};$currScoreAddition"
     }
 
     override fun hashCode(): Int {
         return toString().hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        try {
+            return (other as GameState).toString().equals(this.toString())
+        } catch (_: Error) {
+            return false
+        }
     }
 }
