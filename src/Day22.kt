@@ -1,4 +1,8 @@
-class BoolMap3D() : HashMap<Pos3D, Boolean>();
+class BoolMap3D() : HashMap<Pos3D, Boolean>() {
+    fun countNbOn(): Int {
+        TODO("Not yet implemented")
+    }
+};
 
 fun main() {
     fun getRanges(line: String): List<IntRange> {
@@ -32,8 +36,13 @@ fun main() {
         return state.count { entry -> entry.value }.toLong()
     }
 
+    fun calcRangeStateMap(input: List<String>): RangeStateMap {
+        TODO("Not yet implemented")
+    }
+
     fun part2(input: List<String>): Int {
-        return 0
+        val state = calcRangeStateMap(input)
+        return state.countNbOn()
     }
 
     // test if implementation meets criteria from the description, like:
@@ -43,6 +52,14 @@ fun main() {
     checkEquals(part1(testInput), 590784)
     val input = readInput("Day${day}")
     prcp(part1(input))
-    checkEquals(part2(testInput), 0)
+    val testInput2 = readInput("Day${day}.test2")
+    checkEquals(part2(testInput), 2758514936282235)
     prcp(part2(input))
+}
+
+class RangeStateMap {
+    fun countNbOn(): Int {
+        TODO("Not yet implemented")
+    }
+
 }
