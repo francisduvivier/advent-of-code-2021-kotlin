@@ -36,11 +36,59 @@ fun main() {
         return state.count { entry -> entry.value }.toLong()
     }
 
-    fun calcRangeStateMap(input: List<String>): RangeStateMap {
-        TODO("Not yet implemented")
+
+    fun hasOverLap(a: IntRange, b: IntRange): Boolean {
+        return b.first <= a.first && a.first <= b.last || b.first <= a.last && a.last <= b.last
     }
 
-    fun part2(input: List<String>): Int {
+    fun hasOverLap(a: List<IntRange>, b: List<IntRange>): Boolean {
+        return a.mapIndexed { index, value -> hasOverLap(value, b[index]) }.all { it }
+    }
+
+    fun deleteRangeFrom(alreadyAdded: Range3D, newRange: Range3D): List<Range3D> {
+        if (!hasOverLap(alreadyAdded, newRange)) {
+            return listOf(newRange)
+        }
+
+        return TODO("IMPL")
+    }
+
+    fun calcRangeStateMap(input: List<String>): RangeStateMap {
+        val addedRanges = RangeStateMap()
+        var i = 0;
+        for (line in input) {
+            println("line [${i++}][${line}]")
+            val isOn = line.startsWith("on")
+            val newRangeFromLine = getRanges(line)
+            if (addedRanges.isEmpty()) {
+                if (isOn) {
+                    addedRanges.add(newRangeFromLine)
+                }
+                continue
+            }
+            if (isOn) {
+                val newRanges = arrayListOf(newRangeFromLine)
+                for (alreadyAdded in addedRanges.toList()) {
+                    for (newRange in newRanges.toList()) {
+                        newRanges.remove(newRange)
+                        newRanges.addAll(deleteRangeFrom(alreadyAdded, newRange))
+                    }
+                }
+                addedRanges.addAll(newRanges)
+                println("addedRanges size [${addedRanges.size}]")
+            } else {
+                addedRanges.toList().forEach { alreadyAdded ->
+                    run {
+                        addedRanges.remove(alreadyAdded)
+                        addedRanges.addAll(deleteRangeFrom(newRangeFromLine, alreadyAdded))
+                    }
+                }
+            }
+        }
+        return addedRanges
+    }
+
+    fun part2(input: List<String>): Long {
         val state = calcRangeStateMap(input)
         return state.countNbOn()
     }
@@ -53,13 +101,15 @@ fun main() {
     val input = readInput("Day${day}")
     prcp(part1(input))
     val testInput2 = readInput("Day${day}.test2")
-    checkEquals(part2(testInput), 2758514936282235)
+    checkEquals(part2(testInput2), 2758514936282235)
     prcp(part2(input))
 }
 
-class RangeStateMap {
-    fun countNbOn(): Int {
-        TODO("Not yet implemented")
+typealias Range3D = List<IntRange>
+
+class RangeStateMap : ArrayList<Range3D>() {
+    fun countNbOn(): Long {
+        return map { r3d -> r3d.map { it.count().toLong() }.reduce { acc, curr -> acc * curr } }.sum()
     }
 
 }
