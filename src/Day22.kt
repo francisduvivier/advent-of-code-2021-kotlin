@@ -1,13 +1,18 @@
-class BoolMap3D() : HashMap<Pos3D, Boolean>() {
-    fun countNbOn(): Int {
-        TODO("Not yet implemented")
-    }
-};
+import java.lang.Math.max
+import java.lang.Math.min
+
+class BoolMap3D() : HashMap<Pos3D, Boolean>()
+
+enum class CubeType {
+    ON, OFF, OVERLAP
+}
 
 fun main() {
-    fun getRanges(line: String): List<IntRange> {
+    fun getRanges(line: String): Cube {
         val rangeStrings = line.split(" ")[1].split(",").map { it.split("=")[1] }
-        return rangeStrings.map { it.split("..").map { it.toInt() } }.map { (start, end) -> IntRange(start, end) }
+        val rangeList =
+            rangeStrings.map { it.split("..").map { it.toInt() } }.map { (start, end) -> IntRange(start, end) }
+        return Cube(rangeList, if (line.startsWith("on")) CubeType.ON else CubeType.OFF);
     }
 
     fun calcStateMap(input: List<String>, allowedRange: IntRange?): BoolMap3D {
@@ -30,70 +35,63 @@ fun main() {
         return state
     }
 
-    fun part1(input: List<String>): Long {
+    fun calcNbOnNaive(input: List<String>): Long {
         val allowedRange: IntRange = -50..50
         val state = calcStateMap(input, allowedRange)
         return state.count { entry -> entry.value }.toLong()
     }
 
-
-    fun hasOverLap(a: IntRange, b: IntRange): Boolean {
-        return b.first <= a.first && a.first <= b.last || b.first <= a.last && a.last <= b.last
+    fun part1(input: List<String>): Long {
+        return calcNbOnNaive(input)
     }
 
-    fun hasOverLap(a: List<IntRange>, b: List<IntRange>): Boolean {
-        return a.mapIndexed { index, value -> hasOverLap(value, b[index]) }.all { it }
+    fun getCubeOverlap(cube1: Cube, cube2: Cube): Cube {
+        return cube1.overLap(cube2)
     }
 
-    fun deleteRangeFrom(alreadyAdded: Range3D, newRange: Range3D): List<Range3D> {
-        if (!hasOverLap(alreadyAdded, newRange)) {
-            return listOf(newRange)
-        }
 
-        return TODO("IMPL")
-    }
-
-    fun calcRangeStateMap(input: List<String>): RangeStateMap {
-        val addedRanges = RangeStateMap()
-        var i = 0;
+    fun countNbOn(input: List<String>): Long {
+        val addedCubes = CubeList()
+        val addedOverLaps = CubeList()
+        var i = 0
+        var totalOn = 0L
         for (line in input) {
             println("line [${i++}][${line}]")
             val isOn = line.startsWith("on")
-            val newRangeFromLine = getRanges(line)
-            if (addedRanges.isEmpty()) {
+            val newCube = getRanges(line)
+            if (addedCubes.isEmpty()) {
                 if (isOn) {
-                    addedRanges.add(newRangeFromLine)
+                    addedCubes.add(newCube)
                 }
                 continue
             }
-            if (isOn) {
-                val newRanges = arrayListOf(newRangeFromLine)
-                for (alreadyAdded in addedRanges.toList()) {
-                    for (newRange in newRanges.toList()) {
-                        newRanges.remove(newRange)
-                        newRanges.addAll(deleteRangeFrom(alreadyAdded, newRange))
-                    }
-                }
-                addedRanges.addAll(newRanges)
-                println("addedRanges size [${addedRanges.size}]")
-            } else {
-                addedRanges.toList().forEach { alreadyAdded ->
-                    run {
-                        addedRanges.remove(alreadyAdded)
-                        addedRanges.addAll(deleteRangeFrom(newRangeFromLine, alreadyAdded))
-                    }
-                }
+            var totalNewOverLap = 0L
+            for (overLap in addedOverLaps.toList()) {
+                addedOverLaps.add(overLap.overLap(newCube))
             }
+            for (alreadyAdded in addedCubes.toList()) {
+                val overLappingCube = getCubeOverlap(alreadyAdded, newCube)
+                val newOverLap = overLappingCube.count3D()
+                addedOverLaps.add(overLappingCube)
+                totalNewOverLap += newOverLap
+            }
+
+            totalOn -= totalNewOverLap
+            if (isOn) {
+                totalOn += newCube.count3D()
+                addedCubes.add(newCube)
+            }
+            println("addedRanges size [${addedCubes.size}]")
+            println("addedOverLaps size [${addedOverLaps.size}]")
         }
-        return addedRanges
+        return totalOn
     }
 
     fun part2(input: List<String>): Long {
-        val state = calcRangeStateMap(input)
-        return state.countNbOn()
+        return countNbOn(input)
     }
 
-    // test if implementation meets criteria from the description, like:
+// test if implementation meets criteria from the description, like:
     val day = 22
     println("Starting Day ${day}")
     val testInput = readInput("Day${day}.test")
@@ -105,11 +103,39 @@ fun main() {
     prcp(part2(input))
 }
 
-typealias Range3D = List<IntRange>
 
-class RangeStateMap : ArrayList<Range3D>() {
-    fun countNbOn(): Long {
-        return map { r3d -> r3d.map { it.count().toLong() }.reduce { acc, curr -> acc * curr } }.sum()
+class Cube(rangeList: List<IntRange>, val type: CubeType) : ArrayList<IntRange>(rangeList) {
+
+    val x = this[0]
+    val y = this[1]
+    val z = this[2]
+    fun count3D(): Long {
+        return map { it.count().toLong() }.reduce { acc, curr -> acc * curr }
     }
 
+    constructor(
+        xRange: IntRange,
+        yRange: IntRange,
+        zRange: IntRange,
+        type: CubeType
+    ) : this(listOf(xRange, yRange, zRange), type)
+
+    override fun toString(): String {
+        return this.joinToString(" ; ")
+    }
+
+    fun overLap(other: Cube): Cube {
+        val startX = max(this.x.first, other.x.first)
+        val startY = max(this.y.first, other.y.first)
+        val startZ = max(this.z.first, other.z.first)
+        return Cube(
+            startX..min(this.x.last, other.x.last),
+            startY..min(this.y.last, other.y.last),
+            startZ..min(this.z.last, other.z.last),
+            CubeType.OVERLAP
+        )
+    }
+}
+
+class CubeList : ArrayList<Cube>() {
 }
