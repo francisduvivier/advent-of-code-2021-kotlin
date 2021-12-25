@@ -1,7 +1,7 @@
 import java.lang.Math.max
 import java.lang.Math.min
 
-class BoolMap3D() : HashMap<Pos3D, Boolean>()
+class BoolMap3D : HashMap<Pos3D, Boolean>()
 
 enum class CubeType {
     ON, OFF, OVERLAP
@@ -45,11 +45,6 @@ fun main() {
         return calcNbOnNaive(input)
     }
 
-    fun getCubeOverlap(cube1: Cube, cube2: Cube): Cube {
-        return cube1.intersect(cube2)
-    }
-
-
     fun getTotalOverlap(cubesLeft: List<Cube>, currCube: Cube): Long {
         var totalOverlap = 0L;
         val countedOverlaps = CubeList()
@@ -61,18 +56,24 @@ fun main() {
     }
 
     fun countNbOn(input: List<String>): Long {
-        val cubesLeft = input.map { parseCube(it) }.toMutableList()
-        var totalOn = 0L
-        for (currCube in cubesLeft.toList()) {
-            if(currCube.type == CubeType.OFF){
-                continue
+        val allCubes = input.map { parseCube(it) }
+        val lastCube = allCubes.last()
+        val nonOverlapping = CubeList(lastCube)
+        val masks = CubeList(lastCube)
+        for (currCube in allCubes.subList(0, allCubes.size - 1).reversed()) {
+            if (currCube.type == CubeType.ON) {
+                var nonMaskedCubes = CubeList(currCube)
+                for (mask in masks) {
+                    for (nonMasked in nonMaskedCubes.toList()) {
+                        nonMaskedCubes.remove(nonMasked)
+                        nonMaskedCubes.addAll(nonMasked.subtract(nonMasked))
+                    }
+                }
+                nonOverlapping.addAll(nonMaskedCubes)
             }
-            val cubeVolume = currCube.volume()
-            var totalOverlap = getTotalOverlap(cubesLeft, currCube)
-            totalOn += cubeVolume - totalOverlap
-            cubesLeft.remove(currCube)
+            masks.add(currCube)
         }
-        return totalOn
+        return nonOverlapping.sumOf { it.volume() }
     }
 
     fun part2(input: List<String>): Long {
@@ -97,8 +98,10 @@ class Cube(rangeList: List<IntRange>, val type: CubeType) : ArrayList<IntRange>(
     val x = this[0]
     val y = this[1]
     val z = this[2]
+    private val volume = map { it.count().toLong() }.reduce { acc, curr -> acc * curr }
+
     fun volume(): Long {
-        return map { it.count().toLong() }.reduce { acc, curr -> acc * curr }
+        return volume
     }
 
     constructor(
@@ -110,6 +113,17 @@ class Cube(rangeList: List<IntRange>, val type: CubeType) : ArrayList<IntRange>(
 
     override fun toString(): String {
         return this.joinToString(" ; ")
+    }
+
+    fun subtract(slicer: Cube): CubeList {
+        val intersection = intersect(slicer)
+        if (intersection.volume() == 0L) {
+            return CubeList(this)
+        }
+        if (intersection.volume() == this.volume()) {
+            return CubeList()
+        }
+        return TODO()
     }
 
     fun intersect(other: Cube): Cube {
@@ -125,5 +139,7 @@ class Cube(rangeList: List<IntRange>, val type: CubeType) : ArrayList<IntRange>(
     }
 }
 
-class CubeList : ArrayList<Cube>() {
+class CubeList : ArrayList<Cube> {
+    constructor(cube: Cube) : super(listOf(cube))
+    constructor()
 }
