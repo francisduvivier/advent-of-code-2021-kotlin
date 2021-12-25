@@ -47,7 +47,6 @@ fun main() {
                     }
                 }
                 nonOverlapping.addAll(nonMaskedCubes)
-                println("nonOverlapping size [${nonOverlapping.size}]")
             }
             masks.add(currCube)
         }
@@ -73,7 +72,7 @@ fun main() {
     val input = readInput("Day${day}")
     prcp(part1(input))
     val testInput2 = readInput("Day${day}.test2")
-    checkEquals(part2(testInput2), 2758514936282235)
+//    checkEquals(part2(testInput2), 2758514936282235)
     prcp(part2(input))
 }
 
