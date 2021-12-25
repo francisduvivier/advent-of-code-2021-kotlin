@@ -62,14 +62,15 @@ fun main() {
         val masks = CubeList(lastCube)
         for (currCube in allCubes.subList(0, allCubes.size - 1).reversed()) {
             if (currCube.type == CubeType.ON) {
-                var nonMaskedCubes = CubeList(currCube)
+                val nonMaskedCubes = CubeList(currCube)
                 for (mask in masks) {
                     for (nonMasked in nonMaskedCubes.toList()) {
                         nonMaskedCubes.remove(nonMasked)
-                        nonMaskedCubes.addAll(nonMasked.subtract(nonMasked))
+                        nonMaskedCubes.addAll(nonMasked.subtract(mask))
                     }
                 }
                 nonOverlapping.addAll(nonMaskedCubes)
+                println("nonOverlapping size [${nonOverlapping.size}]")
             }
             masks.add(currCube)
         }
@@ -116,14 +117,25 @@ class Cube(rangeList: List<IntRange>, val type: CubeType) : ArrayList<IntRange>(
     }
 
     fun subtract(slicer: Cube): CubeList {
-        val intersection = intersect(slicer)
-        if (intersection.volume() == 0L) {
+        val its = intersect(slicer)
+        if (its.volume() == 0L) {
             return CubeList(this)
         }
-        if (intersection.volume() == this.volume()) {
+        if (its.volume() == this.volume()) {
             return CubeList()
         }
-        return TODO()
+        val filteredCubeList = CubeList(
+            listOf(
+                Cube(x, y.first..its.y.first - 1, z, type), //BOTTOM
+                Cube(x, its.y.last + 1..y.last, z, type), //TOP
+                Cube(x.first..its.x.first - 1, its.y, z, type), //LEFT
+                Cube(its.x.last + 1..x.last, its.y, z, type), //RIGHT
+                Cube(its.x, its.y, z.first..its.z.first - 1, type), //FRONT
+                Cube(its.x, its.y, its.z.last + 1..z.last, type), //BACK
+            ).filter { it.volume() > 0L }
+        )
+        check(filteredCubeList.size > 0)
+        return filteredCubeList
     }
 
     fun intersect(other: Cube): Cube {
@@ -140,6 +152,7 @@ class Cube(rangeList: List<IntRange>, val type: CubeType) : ArrayList<IntRange>(
 }
 
 class CubeList : ArrayList<Cube> {
-    constructor(cube: Cube) : super(listOf(cube))
+    constructor(cubes: List<Cube>) : super(cubes)
+    constructor(cube: Cube) : this(listOf(cube))
     constructor()
 }
