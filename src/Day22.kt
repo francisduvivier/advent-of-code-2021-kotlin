@@ -15,48 +15,25 @@ fun main() {
         return Cube(rangeList, if (line.startsWith("on")) CubeType.ON else CubeType.OFF);
     }
 
-    fun calcStateMap(input: List<String>, allowedRange: IntRange?): BoolMap3D {
+    fun isUsed(allowedRange: IntRange?, ranges: Cube) = allowedRange == null || ranges.find {
+        it.first < allowedRange.first || it.last > allowedRange.last
+    } == null
+
+    fun getNbOnNaive(cubeList: List<Cube>): Long {
         val state = BoolMap3D()
-        for (line in input) {
-            val ranges = parseCube(line)
-            if (allowedRange != null && ranges.find {
-                    it.first < allowedRange.first || it.last > allowedRange.last
-                } != null) {
-                continue
-            }
+        for (ranges in cubeList) {
             for (x in ranges[0]) {
                 for (y in ranges[1]) {
                     for (z in ranges[2]) {
-                        state[Pos3D(x, y, z)] = line.startsWith("on")
+                        state[Pos3D(x, y, z)] = ranges.type == CubeType.ON
                     }
                 }
             }
         }
-        return state
-    }
-
-    fun calcNbOnNaive(input: List<String>): Long {
-        val allowedRange: IntRange = -50..50
-        val state = calcStateMap(input, allowedRange)
         return state.count { entry -> entry.value }.toLong()
     }
 
-    fun part1(input: List<String>): Long {
-        return calcNbOnNaive(input)
-    }
-
-    fun getTotalOverlap(cubesLeft: List<Cube>, currCube: Cube): Long {
-        var totalOverlap = 0L;
-        val countedOverlaps = CubeList()
-        for (higherCube in cubesLeft.subList(1, cubesLeft.size)) {
-            countedOverlaps.add(higherCube.intersect(currCube))
-            totalOverlap += 1
-        }
-        return totalOverlap
-    }
-
-    fun countNbOn(input: List<String>): Long {
-        val allCubes = input.map { parseCube(it) }
+    fun getTotalVolume(allCubes: List<Cube>): Long {
         val lastCube = allCubes.last()
         val nonOverlapping = CubeList(lastCube)
         val masks = CubeList(lastCube)
@@ -77,8 +54,15 @@ fun main() {
         return nonOverlapping.sumOf { it.volume() }
     }
 
+    fun part1(input: List<String>): Long {
+        val allowedRange: IntRange = -50..50
+        val cubeList = input.map { parseCube(it) }.filter { isUsed(allowedRange, it) }
+        return getTotalVolume(cubeList)
+    }
+
     fun part2(input: List<String>): Long {
-        return countNbOn(input)
+        val allCubes = input.map { parseCube(it) }
+        return getTotalVolume(allCubes)
     }
 
 // test if implementation meets criteria from the description, like:
