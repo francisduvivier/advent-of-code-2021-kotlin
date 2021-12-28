@@ -40,15 +40,10 @@ fun prcp(resultString: String) {
     println("Result(copied): " + resultString);
 }
 
-fun checkWithPrint(toCheck: Boolean) {
-    check(toCheck)
-    println("check passed")
-}
-
 fun <T> checkEquals(actual: T, expected: T) {
-    println("Checking actual [$actual] equals [$expected]")
-    checkWithPrint(actual?.equals(expected) == true)
-
+    val result = actual?.equals(expected)
+    println("Checking actual [$actual] equals [$expected]: [${if (result == true) "PASS" else "FAIL"}]")
+    check(result == true)
 }
 
 fun indexes(array: Array<*>) = Array(array.size) { it }
