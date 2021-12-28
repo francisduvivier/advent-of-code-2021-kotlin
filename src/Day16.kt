@@ -95,8 +95,19 @@ fun main() {
         return addVersionNumberRec(topPacket)
     }
 
-    fun calcOperationsRec(topPacket: Packet): Long {
-        TODO("Not yet implemented")
+    fun calcOperationsRec(packet: Packet): Long {
+        val childVals = packet.children.map { calcOperationsRec(it) }
+        when (packet.typeID) {
+            4 -> return packet.data!!
+            0 -> return childVals.sum()
+            1 -> return childVals.product()
+            2 -> return childVals.min()
+            3 -> return childVals.max()
+            5 -> return if (childVals[0] > childVals[1]) 1L else 0L
+            6 -> return if (childVals[0] < childVals[1]) 1L else 0L
+            7 -> return if (childVals[0] == childVals[1]) 1L else 0L
+            else -> return TODO("This should not happen")
+        }
     }
 
     fun part2(input: String): Long {
@@ -129,5 +140,3 @@ fun main() {
     checkEquals(part2("9C0141080250320F1802104A08"), 1)
     prcp(part2(input[0]))
 }
-
-

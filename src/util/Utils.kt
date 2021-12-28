@@ -49,3 +49,15 @@ fun <T> checkEquals(actual: T, expected: T) {
 fun indexes(array: Array<*>) = Array(array.size) { it }
 fun indexes(array: Iterable<*>) = Array(array.count()) { it }
 fun indexes(array: CharSequence) = Array(array.length) { it }
+
+fun Iterable<Long>.product(): Long {
+    return reduce { acc, value -> acc * value }
+}
+
+fun Iterable<Long>.min(): Long {
+    return minOrNull()!!
+}
+
+fun Iterable<Long>.max(): Long {
+    return maxOrNull()!!
+}
