@@ -2,8 +2,7 @@ fun String.fromHexToBits(): String {
     return map { it.digitToInt(16).toString(2).padStart(4, '0') }.joinToString("")
 }
 
-open class Packet(val version: Int, val typeID: Int) {
-    var children: ArrayList<Packet> = ArrayList()
+open class Packet(val version: Int, val typeID: Int, val children: ArrayList<Packet> = ArrayList()) {
 }
 
 class LiteralPacket(version: Int, typeID: Int, val data: Int) : Packet(version, typeID) {
@@ -11,18 +10,58 @@ class LiteralPacket(version: Int, typeID: Int, val data: Int) : Packet(version, 
 
 //typeID 4 = literal val
 fun main() {
+    checkEquals("jos".byteInputStream().readNBytes(2).joinToString("") { it.toInt().toChar().toString() }, "jo")
     fun parseLiteral(literalPacket: String): Int {
+        var bitsString = ""
+        for (chunk in literalPacket.substring(6).chunked(5)) {
+            val last = chunk[0] == '0'
+            bitsString += chunk.substring(1)
+            if (last) {
+                break;
+            }
+        }
+        return bitsString.toInt(2);
+    }
 
-        return 0;
+    fun parseHeader(inputBits: String): Pair<Int, Int> {
+        val version = inputBits.substring(0, 3).toInt(2)
+        val typeID = inputBits.substring(3, 6).toInt(2)
+        return Pair(version, typeID)
+    }
+
+    fun parseLiteralPacket(version: Int, typeID: Int, input: String) {
+//        val is = input.byteInputStream().readNBytes(5).toString()
+
     }
 
     fun parsePacketRec(inputBits: String): Packet {
-        val version = inputBits.substring(0, 3).toInt(2)
-        val typeID = inputBits.substring(3, 6).toInt(2)
+        var currPointer = 0
+        val (version, typeID) = parseHeader(inputBits)
+        currPointer += 6
         when (typeID) {
-            4 -> run {
-                val data = parseLiteral(inputBits)
-                return LiteralPacket(version, typeID, data)
+            4 -> parseLiteralPacket(version, typeID, inputBits)
+            else -> run {
+                val lenTypeID = inputBits[currPointer++]
+                when (lenTypeID) {
+                    '0' -> run {
+                        var readAmount = 15
+                        val nbSubBits = inputBits.substring(currPointer until currPointer + readAmount).toInt(2)
+                        currPointer += readAmount
+                        val subPackets = inputBits.substring(currPointer until currPointer + nbSubBits)
+                        currPointer += nbSubBits
+//                        val childrenBitsChunks: List<String> = splitChildren(subPackets)
+//                        return OperatorPacket(version, typeID, childrenBitsChunks.map { parsePacketRec(it) })
+                    }
+                    '1' -> run {
+                        var readAmount = 11
+                        val nbSubPackets = inputBits.substring(currPointer until currPointer + readAmount).toInt(2)
+                        currPointer += readAmount
+//                        val childrenBitsChunks: List<String> =
+//                            splitChildren(inputBits.substring(currPointer), nbSubPackets)
+//                        return OperatorPacket(version, typeID, childrenBitsChunks.map { parsePacketRec(it) })
+                    }
+                    else -> TODO("This should not happen")
+                }
             }
         }
         return Packet(version, typeID)
@@ -59,4 +98,8 @@ fun main() {
     val input = readInput("Day16")
     prcp(part1(input))
     prcp(part2(input))
+}
+
+class OperatorPacket(version: Int, typeID: Int, children: ArrayList<Packet>) : Packet(version, typeID, children) {
+
 }
