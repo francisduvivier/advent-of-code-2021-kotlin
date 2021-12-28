@@ -2,6 +2,7 @@ import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
 import java.io.File
+import java.lang.Exception
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -41,9 +42,14 @@ fun prcp(resultString: String) {
 }
 
 fun <T> checkEquals(actual: T, expected: T) {
-    val result = actual?.equals(expected)
-    println("Checking actual [$actual] equals [$expected]: [${if (result == true) "PASS" else "FAIL"}]")
-    check(result == true)
+    try {
+        val result = actual?.equals(expected)
+        println("Checking actual [$actual] equals [$expected]: [${if (result == true) "PASS" else "FAIL"}]")
+        check(result == true)
+    } catch (e: Exception) {
+        println("Checking for expected [$expected] failed ")
+        throw e
+    }
 }
 
 fun indexes(array: Array<*>) = Array(array.size) { it }

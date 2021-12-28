@@ -52,7 +52,7 @@ fun main() {
         val (version, typeID) = parseHeader(inputBits)
         currPointer += 6
         when (typeID) {
-            4 -> parseLiteralPacket(version, inputBits)
+            4 -> return parseLiteralPacket(version, inputBits)
             else -> run {
                 val lenTypeID = inputBits.read()
                 when (lenTypeID) {
@@ -80,7 +80,6 @@ fun main() {
                 }
             }
         }
-        return Packet(version, typeID)
     }
 
     fun addVersionNumberRec(topPacket: Packet): Int {
