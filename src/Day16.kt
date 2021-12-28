@@ -15,14 +15,12 @@ class BITStream(val inputString: String) {
     }
 }
 
-open class Packet(val version: Int, val typeID: Int, val children: ArrayList<Packet> = ArrayList()) {
-}
-
-class LiteralPacket(version: Int, val data: Long) : Packet(version, 4) {
-}
-
-class OperatorPacket(version: Int, typeID: Int, children: ArrayList<Packet>) : Packet(version, typeID, children) {
-
+open class Packet(
+    val version: Int,
+    val typeID: Int,
+    val children: ArrayList<Packet> = ArrayList(),
+    val data: Long? = null
+) {
 }
 
 fun main() {
@@ -45,8 +43,8 @@ fun main() {
         return Pair(version, typeID)
     }
 
-    fun parseLiteralPacket(version: Int, input: BITStream): LiteralPacket {
-        return LiteralPacket(version, parseLiteral(input))
+    fun parseLiteralPacket(version: Int, input: BITStream): Packet {
+        return Packet(version, 4, data = parseLiteral(input))
     }
 
     fun parsePacketRec(inputBits: BITStream): Packet {
@@ -68,7 +66,7 @@ fun main() {
                         if (inputBits.pointer - mark != nbSubBits) {
                             TODO("This should not happen")
                         }
-                        return OperatorPacket(version, typeID, children)
+                        return Packet(version, typeID, children)
                     }
                     "1" -> run {
                         val nbSubPackets = inputBits.readInt(11)
@@ -76,14 +74,13 @@ fun main() {
                         while (children.size < nbSubPackets) {
                             children.add(parsePacketRec(inputBits))
                         }
-                        return OperatorPacket(version, typeID, children)
+                        return Packet(version, typeID, children)
                     }
                     else -> TODO("This should not happen")
                 }
             }
         }
         return Packet(version, typeID)
-//        TODO("Not yet implemented")
     }
 
     fun addVersionNumberRec(topPacket: Packet): Int {
@@ -98,13 +95,16 @@ fun main() {
         return addVersionNumberRec(topPacket)
     }
 
-    fun part2(input: String): Long {
-        return 0
+    fun calcOperationsRec(topPacket: Packet): Long {
+        TODO("Not yet implemented")
     }
 
-    fun part2(input: List<String>): Long {
-        return part2(input[0])
+    fun part2(input: String): Long {
+        val inputBits = input.fromHexToBits()
+        val topPacket = parsePacketRec(BITStream(inputBits))
+        return calcOperationsRec(topPacket)
     }
+
     // test if implementation meets criteria from the description, like:
     val literalPacketBitsTest = "110100101111111000101000"
     val literalTestHex = "D2FE28"
